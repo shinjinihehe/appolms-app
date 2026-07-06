@@ -47,15 +47,13 @@ export default function MyWishlistsLayout({ children }: { children: React.ReactN
         {children}
       </div>
 
-      {pathname !== "/my-wishlists" && (
-        <div className="fixed bottom-[80px] right-4 z-50">
-          <Link href="/filter" className="w-14 h-14 bg-white rounded-full shadow-lg border border-[var(--color-primary)] flex items-center justify-center text-[var(--color-primary)] cursor-pointer hover:bg-gray-50">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-            </svg>
-          </Link>
-        </div>
-      )}
+      <div className="fixed bottom-[80px] right-4 z-50">
+        <Link href="/filter" className="w-14 h-14 bg-white rounded-full shadow-lg border border-[var(--color-primary)] flex items-center justify-center text-[var(--color-primary)] cursor-pointer hover:bg-gray-50">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+        </Link>
+      </div>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-[0_-5px_15px_rgba(0,0,0,0.05)] pb-safe z-50">
         <div className="flex justify-around items-center h-16">
