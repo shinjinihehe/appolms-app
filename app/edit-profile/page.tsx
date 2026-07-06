@@ -9,9 +9,6 @@ export default function EditProfilePage() {
   const router = useRouter();
   const { user, updateProfile } = useAuth();
   const [name, setName] = useState("");
-  const [biography, setBiography] = useState("");
-  const [about, setAbout] = useState("");
-  const [address, setAddress] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,10 +18,6 @@ export default function EditProfilePage() {
   useEffect(() => {
     if (user) {
       setName(user.name || "");
-      // Using generic casting since biography, about, address might not be strictly typed in User interface yet
-      setBiography((user as any).biography || "");
-      setAbout((user as any).about || "");
-      setAddress((user as any).address || "");
       if (user.photo) {
         setPhotoPreview(user.photo);
       }
@@ -51,9 +44,6 @@ export default function EditProfilePage() {
     try {
       const formData = new FormData();
       formData.append("name", name);
-      formData.append("biography", biography);
-      formData.append("about", about);
-      formData.append("address", address);
       if (photo) {
         formData.append("photo", photo);
       }
@@ -111,7 +101,6 @@ export default function EditProfilePage() {
 
           {error && <div className="mb-4 text-red-500 text-sm text-center">{error}</div>}
 
-          {/* Form Fields */}
           <div className="space-y-4 mb-8">
             <div>
               <label className="block text-[var(--color-text-dark)] font-medium mb-1">User Name</label>
@@ -120,36 +109,6 @@ export default function EditProfilePage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full p-4 bg-[var(--color-background-input)] rounded-xl border border-transparent focus:border-[var(--color-primary)] focus:outline-none transition-colors"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-[var(--color-text-dark)] font-medium mb-1">Biography</label>
-              <textarea 
-                value={biography}
-                onChange={(e) => setBiography(e.target.value)}
-                rows={4}
-                className="w-full p-4 bg-[var(--color-background-input)] rounded-xl border border-transparent focus:border-[var(--color-primary)] focus:outline-none transition-colors resize-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[var(--color-text-dark)] font-medium mb-1">About</label>
-              <textarea 
-                value={about}
-                onChange={(e) => setAbout(e.target.value)}
-                rows={4}
-                className="w-full p-4 bg-[var(--color-background-input)] rounded-xl border border-transparent focus:border-[var(--color-primary)] focus:outline-none transition-colors resize-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[var(--color-text-dark)] font-medium mb-1">Address</label>
-              <textarea 
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                rows={3}
-                className="w-full p-4 bg-[var(--color-background-input)] rounded-xl border border-transparent focus:border-[var(--color-primary)] focus:outline-none transition-colors resize-none"
               />
             </div>
           </div>
