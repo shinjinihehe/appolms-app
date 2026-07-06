@@ -61,7 +61,6 @@ export default function AccountPage() {
            )}
         </div>
         <h1 className="text-xl font-bold text-[var(--color-text-dark)]">{user?.name || "Demo Student"}</h1>
-        <p className="text-[var(--color-text-grey)] text-sm font-medium mt-1">{user?.phone || "No Phone number"}</p>
       </div>
 
       <div className="flex flex-col w-full">

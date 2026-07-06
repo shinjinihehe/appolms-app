@@ -32,14 +32,9 @@ export default function CourseDetailPage() {
       const data = await fetchCourseDetails(id as string);
       setCourse(data);
       setIsLoading(false);
-      
-      const isPurchased = data && (data.is_purchased === 1 || data.is_purchased === true);
-      if (isPurchased) {
-        router.replace(`/my-course/${id}`);
-      }
     };
     loadData();
-  }, [id, fetchCourseDetails, router]);
+  }, [id, fetchCourseDetails]);
 
   if (isLoading) {
     return (
@@ -292,7 +287,7 @@ export default function CourseDetailPage() {
               className="flex-1 py-3 rounded-xl text-white text-[14px] font-medium"
               style={{ background: "#27AE60" }}
             >
-              Purchased
+              {isPaid ? "Purchased" : "Enrolled"}
             </button>
           ) : isPaid ? (
             <button
