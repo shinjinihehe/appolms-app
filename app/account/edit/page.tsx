@@ -10,9 +10,7 @@ export default function EditProfilePage() {
   const router = useRouter();
   const { user } = useAuth();
   
-  const [firstName, setFirstName] = useState(user?.name?.split(" ")[0] || "");
-  const [lastName, setLastName] = useState(user?.name?.split(" ")[1] || "");
-  const [email, setEmail] = useState(user?.email || "");
+  const [userName, setUserName] = useState(user?.name || "");
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +34,7 @@ export default function EditProfilePage() {
         <div className="flex justify-center mb-8 mt-4">
           <div className="relative">
             <div className="w-24 h-24 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-md">
-              {firstName.charAt(0) || "S"}
+              {userName.charAt(0) || "S"}
             </div>
             <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md border border-gray-100 text-[var(--color-primary)]">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
@@ -46,20 +44,9 @@ export default function EditProfilePage() {
 
         <form onSubmit={handleSave}>
           <Input 
-            label="First Name" 
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-          <Input 
-            label="Last Name" 
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
-          <Input 
-            label="Email Address" 
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            label="User Name" 
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
           />
           
           <div className="mt-8">
