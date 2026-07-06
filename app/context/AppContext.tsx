@@ -11,15 +11,14 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [baseUrl, setBaseUrlState] = useState<string>("");
-
+  // We can't safely use useRouter here if it's the root layout, but this is a provider. 
+  // Let's just leave it empty and let the individual pages handle it, or we can use window.location
+  
   useEffect(() => {
     // Load base URL from localStorage on mount
     const savedUrl = localStorage.getItem("app_base_url");
     if (savedUrl) {
       setBaseUrlState(savedUrl.replace(/\/+$/, ""));
-    } else {
-      // Fallback default
-      setBaseUrlState("https://api.example.com"); 
     }
   }, []);
 

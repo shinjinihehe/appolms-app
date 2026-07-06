@@ -17,10 +17,12 @@ export default function LoginPage() {
   const { baseUrl } = useApp();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!baseUrl) {
+      router.replace("/server-url");
+    } else if (isAuthenticated) {
       router.replace("/home");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, baseUrl, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

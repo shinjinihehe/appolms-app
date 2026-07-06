@@ -7,7 +7,7 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const savedUrl = localStorage.getItem("server_url");
+    const savedUrl = localStorage.getItem("app_base_url");
     if (!savedUrl) {
       router.push("/server-url");
     } else {
