@@ -63,7 +63,7 @@ export default function TabsLayout({ children }: { children: React.ReactNode }) 
         <div className="flex justify-around items-center h-16">
           {tabs.map((tab) => {
             // Note: Since Account renders Login form in the same route when unauthenticated, it highlights "Account"
-            const isActive = pathname === tab.href || (pathname === '/login' && tab.href === '/account');
+            const isActive = pathname === tab.href || ((pathname === '/login' || pathname === '/signup') && tab.href === '/account');
             
             return (
               <Link 

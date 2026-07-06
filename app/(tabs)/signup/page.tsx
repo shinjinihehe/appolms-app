@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Input } from "../components/Input";
-import { useApp } from "../context/AppContext";
+import { Input } from "../../components/Input";
+import { useApp } from "../../context/AppContext";
 
 export default function SignupPage() {
   const router = useRouter();
