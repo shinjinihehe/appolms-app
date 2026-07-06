@@ -113,7 +113,7 @@ export default function LoginPage() {
             </div>
             <input
               type="url"
-              placeholder="https://appolms.com"
+              placeholder="https://example.com"
               value={serverUrl}
               onChange={(e) => {
                 setServerUrl(e.target.value);
