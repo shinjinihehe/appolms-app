@@ -32,9 +32,14 @@ export default function CourseDetailPage() {
       const data = await fetchCourseDetails(id as string);
       setCourse(data);
       setIsLoading(false);
+      
+      const isPurchased = data && (data.is_purchased === 1 || data.is_purchased === true);
+      if (isPurchased) {
+        router.replace(`/my-course/${id}`);
+      }
     };
     loadData();
-  }, [id, fetchCourseDetails]);
+  }, [id, fetchCourseDetails, router]);
 
   if (isLoading) {
     return (
