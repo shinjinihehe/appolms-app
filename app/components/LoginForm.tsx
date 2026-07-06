@@ -8,26 +8,37 @@ import { Input } from "./Input";
 import Link from "next/link";
 
 export default function LoginForm() {
+  const [serverUrl, setServerUrl] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
   const { login } = useAuth();
-  const { baseUrl } = useApp();
+  const { baseUrl, setBaseUrl } = useApp();
   const router = useRouter();
+
+  React.useEffect(() => {
+    if (baseUrl) {
+      setServerUrl(baseUrl);
+    }
+  }, [baseUrl]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!baseUrl) {
-      alert("Base URL not set. Please change server URL.");
+    if (!serverUrl.trim()) {
+      alert("Please enter the Server URL.");
       return;
     }
+    
+    // Save the server URL and sanitize
+    const cleanUrl = serverUrl.trim().replace(/\/+$/, "");
+    setBaseUrl(cleanUrl);
     
     setIsLoading(true);
     
     try {
-      const response = await fetch(`${baseUrl}/api/login`, {
+      const response = await fetch(`${cleanUrl}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -65,6 +76,19 @@ export default function LoginForm() {
       </div>
 
       <form onSubmit={handleLogin} className="flex flex-col">
+        <div className="mb-[15px]">
+          <Input 
+            type="url" 
+            placeholder="Server URL (e.g. https://appolms.com)" 
+            value={serverUrl}
+            onChange={(e) => {
+              setServerUrl(e.target.value);
+              setBaseUrl(e.target.value);
+            }}
+            required
+          />
+        </div>
+
         <div className="mb-[15px]">
           <Input 
             type="email" 
@@ -128,10 +152,6 @@ export default function LoginForm() {
         <div className="text-center flex flex-col space-y-4 pt-4">
           <Link href="/forgot-password" className="text-[#757575] font-medium text-[15px]">
             Forget password
-          </Link>
-          
-          <Link href="/server-url" className="text-[#5851EF] font-semibold text-[15px]">
-            Change Server URL
           </Link>
         </div>
       </form>
