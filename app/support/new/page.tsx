@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "../../../components/Button";
-import { Input } from "../../../components/Input";
+import { Button } from "../../components/Button";
+import { Input } from "../../components/Input";
 
 export default function NewTicketPage() {
   const router = useRouter();

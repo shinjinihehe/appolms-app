@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "../../../components/Button";
-import { Input } from "../../../components/Input";
-import { useAuth } from "../../../context/AuthContext";
+import { Button } from "../../components/Button";
+import { Input } from "../../components/Input";
+import { useAuth } from "../../context/AuthContext";
 
 export default function EditProfilePage() {
   const router = useRouter();

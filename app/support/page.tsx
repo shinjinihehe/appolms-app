@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "../../components/Button";
+import { Button } from "../components/Button";
 
 export default function CustomerSupportPage() {
   const router = useRouter();
