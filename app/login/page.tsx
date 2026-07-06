@@ -10,31 +10,40 @@ import { Input } from "../components/Input";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [serverUrl, setServerUrl] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { login, isAuthenticated } = useAuth();
-  const { baseUrl } = useApp();
+  const { baseUrl, setBaseUrl } = useApp();
 
   useEffect(() => {
-    if (!baseUrl) {
-      router.replace("/server-url");
-    } else if (isAuthenticated) {
+    if (baseUrl) {
+      setServerUrl(baseUrl);
+    }
+  }, [baseUrl]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
       router.replace("/home");
     }
-  }, [isAuthenticated, baseUrl, router]);
+  }, [isAuthenticated, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!baseUrl) {
-      alert("Base URL not set. Please change server URL.");
+    if (!serverUrl.trim()) {
+      alert("Please enter the Server URL.");
       return;
     }
+    
+    // Save the server URL and sanitize
+    const cleanUrl = serverUrl.trim().replace(/\/+$/, "");
+    setBaseUrl(cleanUrl);
     
     setIsLoading(true);
     
     try {
-      const response = await fetch(`${baseUrl}/api/login`, {
+      const response = await fetch(`${cleanUrl}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -72,6 +81,19 @@ export default function LoginPage() {
       </div>
 
       <form onSubmit={handleLogin} className="flex flex-col flex-1">
+        <div className="mb-[15px]">
+          <Input 
+            type="url" 
+            placeholder="Server URL (e.g. https://appolms.com)" 
+            value={serverUrl}
+            onChange={(e) => {
+              setServerUrl(e.target.value);
+              setBaseUrl(e.target.value);
+            }}
+            required
+          />
+        </div>
+
         <div className="mb-[15px]">
           <Input 
             type="email" 
@@ -137,10 +159,6 @@ export default function LoginPage() {
         <div className="text-center flex flex-col space-y-4 pt-4">
           <Link href="/forgot-password" className="text-[#757575] font-medium text-[15px]">
             Forget password
-          </Link>
-          
-          <Link href="/server-url" className="text-[#5851EF] font-semibold text-[15px]">
-            Change Server URL
           </Link>
         </div>
       </form>

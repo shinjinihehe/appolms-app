@@ -7,14 +7,21 @@ import { useApp } from "../context/AppContext";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { baseUrl } = useApp();
+  const { baseUrl, setBaseUrl } = useApp();
 
+  const [serverUrl, setServerUrl] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  React.useEffect(() => {
+    if (baseUrl) {
+      setServerUrl(baseUrl);
+    }
+  }, [baseUrl]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,16 +30,19 @@ export default function SignupPage() {
       return;
     }
     
-    if (!baseUrl) {
-      setError("Server URL is not set");
+    if (!serverUrl.trim()) {
+      setError("Please enter the Server URL");
       return;
     }
+
+    const cleanUrl = serverUrl.trim().replace(/\/+$/, "");
+    setBaseUrl(cleanUrl);
 
     setIsLoading(true);
     setError("");
 
     try {
-      const response = await fetch(`${baseUrl}/api/signup?type=registration`, {
+      const response = await fetch(`${cleanUrl}/api/signup?type=registration`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,6 +89,18 @@ export default function SignupPage() {
         </div>
 
         <form onSubmit={handleSignup} className="flex flex-col flex-1">
+          <div className="mb-[15px]">
+            <Input 
+              type="url" 
+              placeholder="Server URL (e.g. https://appolms.com)" 
+              value={serverUrl}
+              onChange={(e) => {
+                setServerUrl(e.target.value);
+                setBaseUrl(e.target.value);
+              }}
+              required
+            />
+          </div>
           <div className="mb-[15px]">
             <Input 
               type="text" 
