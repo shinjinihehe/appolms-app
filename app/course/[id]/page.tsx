@@ -116,7 +116,7 @@ export default function CourseDetailPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white pb-24">
-      {/* Thumbnail + Back + Cart + Play + Heart */}
+      {/* Thumbnail + Back + Play + Heart */}
       <div className="relative w-full bg-[#E8EDF1] rounded-b-[28px] overflow-hidden" style={{ height: "260px" }}>
         {course.thumbnail ? (
           <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
@@ -135,14 +135,6 @@ export default function CourseDetailPage() {
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </button>
 
-        {/* Cart */}
-        <button onClick={() => router.push("/my-cart")} className="absolute top-10 right-4 z-10">
-          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-          </svg>
-        </button>
 
         {/* Play button */}
         <div className="absolute inset-0 flex items-center justify-center">
@@ -298,22 +290,13 @@ export default function CourseDetailPage() {
               Purchased
             </button>
           ) : isPaid ? (
-            <>
-              {/* Add to Cart */}
-              <button
-                className="flex-1 py-3 rounded-xl text-[14px] font-medium border border-[#5851EF]"
-                style={{ color: "#5851EF", background: "white" }}
-              >
-                {course.is_cart ? "Added to cart" : "Add to Cart"}
-              </button>
-              {/* Buy Now */}
-              <button
-                className="flex-1 py-3 rounded-xl text-white text-[14px] font-medium"
-                style={{ background: "#5851EF" }}
-              >
-                Buy Now
-              </button>
-            </>
+            <button
+              onClick={() => router.push("/my-wishlists")}
+              className="flex-1 py-3 rounded-xl text-[14px] font-medium border border-[#5851EF]"
+              style={{ color: "#5851EF", background: "white" }}
+            >
+              {course.is_wishlisted ? "View Wishlist" : "Add to Wishlist"}
+            </button>
           ) : (
             /* Free → Enroll Now */
             <button

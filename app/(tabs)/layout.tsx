@@ -18,11 +18,9 @@ const CoursesIcon = ({ active }: { active: boolean }) => (
   </svg>
 );
 
-const CartIcon = ({ active }: { active: boolean }) => (
+const WishlistIcon = ({ active }: { active: boolean }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-    <line x1="3" y1="6" x2="21" y2="6"></line>
-    <path d="M16 10a4 4 0 0 1-8 0"></path>
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
   </svg>
 );
 
@@ -39,7 +37,7 @@ export default function TabsLayout({ children }: { children: React.ReactNode }) 
   const tabs = [
     { name: "Home", href: "/home", icon: HomeIcon },
     { name: "My Courses", href: "/my-courses", icon: CoursesIcon },
-    { name: "My Cart", href: "/my-cart", icon: CartIcon },
+    { name: "Wishlist", href: "/my-wishlists", icon: WishlistIcon },
     { name: "Account", href: "/account", icon: AccountIcon },
   ];
 
@@ -49,8 +47,8 @@ export default function TabsLayout({ children }: { children: React.ReactNode }) 
         {children}
       </div>
 
-      {/* Floating Action Button (Filter) - only show on certain pages? The screenshot shows it on the login page? Wait, no, filter is shown when not in Cart. Let's just always show it for now like screenshot. */}
-      {pathname !== '/my-cart' && (
+      {/* Floating Action Button (Filter) - only show on certain pages? The screenshot shows it on the login page? Wait, no, filter is shown when not in Wishlist. Let's just always show it for now like screenshot. */}
+      {pathname !== '/my-wishlists' && (
         <div className="fixed bottom-[80px] right-4 z-50">
           <Link href="/filter" className="w-14 h-14 bg-white rounded-full shadow-lg border border-[var(--color-primary)] flex items-center justify-center text-[var(--color-primary)] cursor-pointer hover:bg-gray-50">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
