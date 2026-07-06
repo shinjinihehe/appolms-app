@@ -75,54 +75,120 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col pt-10 px-6 pb-24">
-      <div className="text-center mb-10">
-        <h1 className="text-[28px] font-semibold text-[#111111]">Log In</h1>
+    <div className="min-h-screen bg-white flex flex-col pt-12 px-6 pb-24">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="text-[#5851EF]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+          </div>
+          <h1 className="text-[28px] font-bold text-[#111111]">Log In</h1>
+        </div>
+
+        {/* Login / Signup toggle pill */}
+        <div className="bg-[#F5F5FA] p-1 rounded-full flex items-center shadow-inner">
+          <button
+            type="button"
+            className="px-5 py-2 rounded-full text-sm font-semibold bg-[#5851EF] text-white shadow-md transition-all duration-200"
+          >
+            Log In
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/signup")}
+            className="px-5 py-2 rounded-full text-sm font-semibold text-[#757575] hover:text-[#111111] transition-all duration-200"
+          >
+            Sign Up
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleLogin} className="flex flex-col flex-1">
-        <div className="mb-[15px]">
-          <Input 
-            type="url" 
-            placeholder="Server URL (e.g. https://appolms.com)" 
-            value={serverUrl}
-            onChange={(e) => {
-              setServerUrl(e.target.value);
-              setBaseUrl(e.target.value);
-            }}
-            required
-          />
-        </div>
-
-        <div className="mb-[15px]">
-          <Input 
-            type="email" 
-            placeholder="E-mail" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="mb-6 relative">
-          <Input 
-            type={showPassword ? "text" : "password"} 
-            placeholder="Password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button 
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
-          >
-            {showPassword ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+        {/* Your organization Section */}
+        <div className="flex flex-col gap-2 mb-6">
+          <label className="text-sm font-bold text-[#111111] px-1">Your organization</label>
+          <div className="relative flex items-center">
+            <div className="absolute left-4 text-[#5851EF]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            </div>
+            <input
+              type="url"
+              placeholder="https://appolms.com"
+              value={serverUrl}
+              onChange={(e) => {
+                setServerUrl(e.target.value);
+                setBaseUrl(e.target.value);
+              }}
+              className="w-full bg-white border-2 border-[#D3C9FC] focus:border-[#5851EF] rounded-[18px] py-4 pl-12 pr-12 outline-none transition-all duration-200 placeholder-gray-400 text-[15px] font-medium text-[#111111]"
+              required
+            />
+            {serverUrl && serverUrl.startsWith("http") && (
+              <div className="absolute right-4 text-green-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              </div>
             )}
-          </button>
+          </div>
+          <span className="text-[12px] text-[#757575] font-medium px-1">Enter your organization's URL to continue</span>
+        </div>
+
+        {/* Separator */}
+        <div className="flex items-center my-6">
+          <div className="flex-1 border-t border-gray-200"></div>
+          <span className="mx-4 text-sm text-gray-400 font-medium">or</span>
+          <div className="flex-1 border-t border-gray-200"></div>
+        </div>
+
+        {/* Login details Section */}
+        <div className="flex flex-col gap-2 mb-6">
+          <label className="text-sm font-bold text-[#111111] px-1">Login details</label>
+          <div className="border border-gray-200 rounded-[20px] overflow-hidden bg-white">
+            {/* Email Input */}
+            <div className="relative flex items-center border-b border-gray-200 bg-white">
+              <div className="absolute left-4 text-[#5851EF]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              </div>
+              <input
+                type="email"
+                placeholder="E-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-transparent py-4 pl-12 pr-4 outline-none text-[15px] text-[#111111] placeholder-gray-400 font-medium"
+                required
+              />
+            </div>
+            {/* Password Input */}
+            <div className="relative flex items-center bg-white">
+              <div className="absolute left-4 text-[#5851EF]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-transparent py-4 pl-12 pr-12 outline-none text-[15px] text-[#111111] placeholder-gray-400 font-medium"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 text-gray-400"
+              >
+                {showPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Forgot password */}
+        <div className="flex justify-end mb-8 px-1">
+          <Link href="/forgot-password" className="text-[#5851EF] font-semibold text-sm hover:underline">
+            Forgot password?
+          </Link>
         </div>
 
         <div className="w-full">
@@ -139,27 +205,6 @@ export default function LoginPage() {
               Log In
             </button>
           )}
-        </div>
-
-        <button 
-          type="button" 
-          onClick={() => router.push("/signup")}
-          className="w-full text-[#757575] font-medium text-base py-4 rounded-2xl bg-white border border-[#E5E5E5] mb-12 flex justify-center"
-        >
-          Register
-        </button>
-
-        <div className="text-center mb-8">
-          <span className="text-[#757575] font-medium text-[15px]">Not have an account yet? </span>
-          <Link href="/signup" className="text-[#5851EF] font-semibold text-[15px]">
-            Sign Up
-          </Link>
-        </div>
-
-        <div className="text-center flex flex-col space-y-4 pt-4">
-          <Link href="/forgot-password" className="text-[#757575] font-medium text-[15px]">
-            Forget password
-          </Link>
         </div>
       </form>
     </div>
