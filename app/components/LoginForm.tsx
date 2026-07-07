@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { useApp } from "../context/AppContext";
-import { Input } from "./Input";
+import { AlertPopup } from "./AlertPopup";
 import Link from "next/link";
 
 export default function LoginForm() {
@@ -13,6 +13,20 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const [alertState, setAlertState] = useState<{
+    isOpen: boolean;
+    message: string;
+    type: "success" | "error" | "info";
+  }>({
+    isOpen: false,
+    message: "",
+    type: "info",
+  });
+
+  const showAlert = (message: string, type: "success" | "error" | "info" = "info") => {
+    setAlertState({ isOpen: true, message, type });
+  };
   
   const { login } = useAuth();
   const { baseUrl, setBaseUrl } = useApp();
@@ -27,7 +41,7 @@ export default function LoginForm() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!serverUrl.trim()) {
-      alert("Please enter the Server URL.");
+      showAlert("Please enter the Server URL.", "error");
       return;
     }
     
@@ -54,16 +68,18 @@ export default function LoginForm() {
       if (response.status === 201) {
         if (data.user?.email_verified_at) {
           login(data.token, data.user);
-          router.push("/home");
-          alert("Login Successful"); // Mimicking Fluttertoast
+          showAlert("Login Successful", "success");
+          setTimeout(() => {
+            router.push("/home");
+          }, 1000);
         } else {
-          alert("Please verify your email before logging in.");
+          showAlert("Please verify your email before logging in.", "info");
         }
       } else {
-        alert(data.message || "Login failed");
+        showAlert(data.message || "Login failed", "error");
       }
     } catch (err: any) {
-      alert(`An error occurred: ${err.message || err}`);
+      showAlert(`An error occurred: ${err.message || err}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -208,6 +224,7 @@ export default function LoginForm() {
           )}
         </div>
       </form>
+      <AlertPopup isOpen={alertState.isOpen} message={alertState.message} type={alertState.type} onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))} />
     </div>
   );
 }

@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import { useApp } from "../../context/AppContext";
+import { AlertPopup } from "../../components/AlertPopup";
 import Link from "next/link";
-import { Input } from "../../components/Input";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,6 +16,20 @@ export default function LoginPage() {
   const router = useRouter();
   const { login, isAuthenticated } = useAuth();
   const { baseUrl, setBaseUrl } = useApp();
+
+  const [alertState, setAlertState] = useState<{
+    isOpen: boolean;
+    message: string;
+    type: "success" | "error" | "info";
+  }>({
+    isOpen: false,
+    message: "",
+    type: "info",
+  });
+
+  const showAlert = (message: string, type: "success" | "error" | "info" = "info") => {
+    setAlertState({ isOpen: true, message, type });
+  };
 
   useEffect(() => {
     if (baseUrl) {
@@ -32,7 +46,7 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!serverUrl.trim()) {
-      alert("Please enter the Server URL.");
+      showAlert("Please enter the Server URL.", "error");
       return;
     }
     
@@ -59,16 +73,18 @@ export default function LoginPage() {
       if (response.status === 201) {
         if (data.user?.email_verified_at) {
           login(data.token, data.user);
-          router.push("/home");
-          alert("Login Successful");
+          showAlert("Login Successful", "success");
+          setTimeout(() => {
+            router.push("/home");
+          }, 1000);
         } else {
-          alert("Please verify your email before logging in.");
+          showAlert("Please verify your email before logging in.", "info");
         }
       } else {
-        alert(data.message || "Login failed");
+        showAlert(data.message || "Login failed", "error");
       }
     } catch (err: any) {
-      alert(`An error occurred: ${err.message || err}`);
+      showAlert(`An error occurred: ${err.message || err}`, "error");
     } finally {
       setIsLoading(false);
     }
@@ -213,6 +229,7 @@ export default function LoginPage() {
           )}
         </div>
       </form>
+      <AlertPopup isOpen={alertState.isOpen} message={alertState.message} type={alertState.type} onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import { useApp } from "../../context/AppContext";
+import { AlertPopup } from "../../components/AlertPopup";
 
 export default function QuizPage() {
   const params = useParams();
@@ -22,6 +23,20 @@ export default function QuizPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [alertState, setAlertState] = useState<{
+    isOpen: boolean;
+    message: string;
+    type: "success" | "error" | "info";
+  }>({
+    isOpen: false,
+    message: "",
+    type: "info",
+  });
+
+  const showAlert = (message: string, type: "success" | "error" | "info" = "info") => {
+    setAlertState({ isOpen: true, message, type });
+  };
 
   const [quizStarted, setQuizStarted] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -110,7 +125,7 @@ export default function QuizPage() {
     });
 
     if (unanswered.length > 0) {
-      alert("Please answer all questions before submitting.");
+      showAlert("Please answer all questions before submitting.", "info");
       return;
     }
 
@@ -134,12 +149,12 @@ export default function QuizPage() {
         throw new Error(data.message || "Failed to submit quiz");
       }
 
-      alert("Quiz submitted successfully!");
+      showAlert("Quiz submitted successfully!", "success");
       setQuizStarted(false);
       await loadQuizData();
       setViewingResults(true);
     } catch (err: any) {
-      alert(err.message);
+      showAlert(err.message || "An error occurred", "error");
     } finally {
       setSubmitting(false);
     }
@@ -506,6 +521,7 @@ export default function QuizPage() {
           </div>
         )}
       </div>
+      <AlertPopup isOpen={alertState.isOpen} message={alertState.message} type={alertState.type} onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))} />
     </div>
   );
 }
