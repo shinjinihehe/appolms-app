@@ -15,12 +15,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Let's just leave it empty and let the individual pages handle it, or we can use window.location
   
   useEffect(() => {
-    // Load base URL from localStorage on mount, fallback to default
+    // Load base URL from localStorage on mount, fallback to current domain
     const savedUrl = localStorage.getItem("app_base_url");
     if (savedUrl) {
       setBaseUrlState(savedUrl.replace(/\/+$/, ""));
     } else {
-      setBaseUrlState("https://appolms.com");
+      setBaseUrlState(window.location.origin);
     }
   }, []);
 
