@@ -208,6 +208,96 @@ function CoursePlayerPageContent() {
       );
     }
 
+    // Document / File lesson
+    if (lesson_type === 'document_type') {
+      const attachment = activeLesson.attachment || "";
+      const attachmentType = activeLesson.attachment_type || "";
+      const fileUrl = attachment ? `${baseUrl}/uploads/lesson_file/attachment/${attachment}` : "";
+      const ext = attachment.split('.').pop()?.toLowerCase() || "";
+
+      if (!fileUrl) {
+        return (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 text-white p-6">
+            <BackBtn />
+            <p className="text-sm">No file available for this lesson.</p>
+          </div>
+        );
+      }
+
+      // PDF — render inline
+      if (ext === "pdf" || attachmentType === "pdf") {
+        return (
+          <div className="absolute inset-0 bg-white flex flex-col">
+            <BackBtn />
+            <iframe src={fileUrl} className="w-full flex-1 border-0" title={activeLesson.title} />
+          </div>
+        );
+      }
+
+      // Office docs (doc, docx, ppt, pptx, xls, xlsx) — Microsoft Office Online viewer
+      if (["doc", "docx", "ppt", "pptx", "xls", "xlsx"].includes(ext) || ["doc", "ppt"].includes(attachmentType)) {
+        const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+        return (
+          <div className="absolute inset-0 bg-white flex flex-col">
+            <BackBtn />
+            <iframe src={viewerUrl} className="w-full flex-1 border-0" title={activeLesson.title} />
+          </div>
+        );
+      }
+
+      // Image files
+      if (["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext)) {
+        return (
+          <div className="absolute inset-0 bg-gray-900 flex flex-col items-center justify-center p-4">
+            <BackBtn />
+            <img src={fileUrl} alt={activeLesson.title} className="max-w-full max-h-full object-contain rounded-lg" />
+          </div>
+        );
+      }
+
+      // Fallback — show download button
+      return (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 text-white p-6">
+          <BackBtn />
+          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <p className="text-sm font-semibold mb-2 text-center">{activeLesson.title}</p>
+          <p className="text-xs text-gray-400 mb-6 text-center max-w-[240px] leading-relaxed">
+            This file cannot be previewed directly. Open it in your browser or download it.
+          </p>
+          <a
+            href={fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-6 py-3 bg-[#5851EF] text-white rounded-xl text-xs font-semibold hover:bg-[#4841CF] transition-colors"
+          >
+            Open File
+          </a>
+        </div>
+      );
+    }
+
+    // Text lesson
+    if (lesson_type === 'text') {
+      return (
+        <div className="absolute inset-0 bg-white overflow-y-auto">
+          <BackBtn />
+          <div className="pt-14 px-5 pb-8">
+            <h2 className="text-[17px] font-semibold text-[#111] mb-4">{activeLesson.title}</h2>
+            {activeLesson.summary ? (
+              <div className="prose prose-sm max-w-none text-[#333] leading-relaxed text-sm" dangerouslySetInnerHTML={{ __html: activeLesson.summary }} />
+            ) : (
+              <p className="text-sm text-gray-500">No content available.</p>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     // Default Fallback
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 text-white p-4">
@@ -216,9 +306,6 @@ function CoursePlayerPageContent() {
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
         </div>
         <p className="text-sm font-medium mb-2">{activeLesson.title}</p>
-        {lesson_type === 'text' && activeLesson.summary && (
-          <div className="p-4 text-xs text-gray-300 max-h-[100px] overflow-y-auto text-center" dangerouslySetInnerHTML={{ __html: activeLesson.summary }} />
-        )}
       </div>
     );
   };
