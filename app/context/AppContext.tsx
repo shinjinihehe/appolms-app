@@ -21,14 +21,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     // If saved URL is stale localhost but we're running elsewhere, ignore it
     const isStale = savedUrl && savedUrl.includes("localhost") && !origin.includes("localhost");
+    // Also ignore Vercel deployment URLs saved from previous web-only loads
+    const isVercel = savedUrl && savedUrl.includes("vercel.app");
 
-    if (savedUrl && !isStale) {
+    if (savedUrl && !isStale && !isVercel) {
       setBaseUrlState(savedUrl.replace(/\/+$/, ""));
     } else if (envUrl) {
       setBaseUrlState(envUrl);
-    } else {
-      setBaseUrlState(origin);
     }
+    // Otherwise leave empty — user will enter their org URL on login
   }, []);
 
   const setBaseUrl = (url: string) => {
