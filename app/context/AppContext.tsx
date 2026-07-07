@@ -16,12 +16,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   
   useEffect(() => {
     const savedUrl = localStorage.getItem("app_base_url");
-    if (savedUrl) {
+    const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/+$/, "");
+    const origin = window.location.origin;
+
+    // If saved URL is stale localhost but we're running elsewhere, ignore it
+    const isStale = savedUrl && savedUrl.includes("localhost") && !origin.includes("localhost");
+
+    if (savedUrl && !isStale) {
       setBaseUrlState(savedUrl.replace(/\/+$/, ""));
-    } else if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-      setBaseUrlState(process.env.NEXT_PUBLIC_API_BASE_URL.replace(/\/+$/, ""));
+    } else if (envUrl) {
+      setBaseUrlState(envUrl);
     } else {
-      setBaseUrlState(window.location.origin);
+      setBaseUrlState(origin);
     }
   }, []);
 
