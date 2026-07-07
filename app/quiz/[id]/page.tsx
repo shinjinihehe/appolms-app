@@ -256,7 +256,7 @@ export default function QuizPage() {
                                         <span className="font-semibold">Your Answer: </span>
                                         {Array.isArray(userAns) ? userAns.join(", ") : String(userAns || "No answer")}
                                       </p>
-                                      {correctAns !== undefined && (
+                                      {correctAns !== undefined && !isCorrect && (
                                         <p className="text-green-600">
                                           <span className="font-semibold">Correct Answer: </span>
                                           {Array.isArray(correctAns) ? correctAns.join(", ") : String(correctAns)}
