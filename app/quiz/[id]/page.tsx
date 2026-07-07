@@ -193,10 +193,10 @@ export default function QuizPage() {
   const hasAttemptsLeft = submissionsCount < retakeLimit;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F9FAFB] pb-8">
+    <div className="flex flex-col min-h-screen bg-[#F9FAFB]">
       {/* Top Header */}
-      <div className="bg-white border-b border-[#F0F0F0] px-5 py-4 flex items-center sticky top-0 z-40">
-        <button onClick={handleGoBack} className="mr-4 p-1 hover:bg-[#F5F5F5] rounded-full transition-colors">
+      <div className="bg-white border-b border-[#F0F0F0] px-4 py-4 flex items-center sticky top-0 z-40">
+        <button onClick={handleGoBack} className="mr-3 p-1 hover:bg-[#F5F5F5] rounded-full transition-colors shrink-0">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
@@ -205,10 +205,10 @@ export default function QuizPage() {
         <h1 className="text-[17px] font-semibold text-[#111] truncate flex-1">{quizDetails.title}</h1>
       </div>
 
-      <div className="px-5 pt-5 max-w-md mx-auto w-full flex-1 flex flex-col">
+      <div className="px-4 pt-5 pb-8 w-full max-w-2xl mx-auto flex flex-col gap-4">
         {!quizStarted ? (
           /* Landing Screen (Show Results or Details) */
-          <div className="flex-1 flex flex-col">
+          <div className="flex flex-col gap-4">
             {/* Last attempt score summary card */}
             {lastSubmission && viewingResults && (
               <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F0] p-5 mb-5">
@@ -345,7 +345,7 @@ export default function QuizPage() {
             </div>
 
             {/* Bottom action button */}
-            <div className="mt-auto">
+            <div>
               {hasAttemptsLeft ? (
                 <button
                   onClick={() => {
@@ -366,7 +366,7 @@ export default function QuizPage() {
           </div>
         ) : (
           /* Active Quiz Taking view (one question at a time) */
-          <div className="flex-1 flex flex-col">
+          <div className="flex flex-col gap-4">
             {/* Progress bar */}
             <div className="flex items-center justify-between mb-4">
               <span className="text-[11px] text-[#757575] font-semibold uppercase">Question {currentQuestionIndex + 1} of {questions.length}</span>
@@ -386,8 +386,8 @@ export default function QuizPage() {
               if (!currentQuestion) return null;
 
               return (
-                <div className="flex-1 flex flex-col">
-                  <div className="bg-white rounded-2xl border border-[#F0F0F0] p-5 shadow-sm mb-6">
+                <div className="flex flex-col gap-4">
+                  <div className="bg-white rounded-2xl border border-[#F0F0F0] p-5 shadow-sm">
                     <h3 className="text-[15px] font-medium text-[#111] leading-relaxed mb-5" dangerouslySetInnerHTML={{ __html: currentQuestion.title }} />
 
                     {/* Question inputs */}
@@ -480,7 +480,7 @@ export default function QuizPage() {
                   </div>
 
                   {/* Nav action buttons */}
-                  <div className="mt-auto grid grid-cols-2 gap-3.5">
+                  <div className="grid grid-cols-2 gap-3.5">
                     <button
                       onClick={() => {
                         if (currentQuestionIndex > 0) {
