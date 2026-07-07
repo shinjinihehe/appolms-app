@@ -33,7 +33,7 @@ export function useMyCourses() {
   }, [baseUrl, token]);
 
   const fetchCourseSections = useCallback(async (courseId: string | number) => {
-    if (!baseUrl || !token) throw new Error("Base URL or Token not set");
+    if (!baseUrl || !token) return [];
     const res = await fetch(`${baseUrl}/api/sections?course_id=${courseId}`, {
       headers: {
         "Content-Type": "application/json",
@@ -46,7 +46,7 @@ export function useMyCourses() {
   }, [baseUrl, token]);
 
   const fetchLiveClass = useCallback(async (courseId: string | number) => {
-    if (!baseUrl || !token) throw new Error("Base URL or Token not set");
+    if (!baseUrl || !token) return null;
     const res = await fetch(`${baseUrl}/api/zoom/meetings?course_id=${courseId}`, {
       headers: {
         "Content-Type": "application/json",
@@ -59,7 +59,7 @@ export function useMyCourses() {
   }, [baseUrl, token]);
 
   const toggleLessonCompleted = useCallback(async (lessonId: string | number, progress: number) => {
-    if (!baseUrl || !token) throw new Error("Base URL or Token not set");
+    if (!baseUrl || !token) return null;
     // In Flutter, it passes progress indirectly or just hits the endpoint
     // `api/save_course_progress?lesson_id=X&progress=Y`
     const url = `${baseUrl}/api/save_course_progress?lesson_id=${lessonId}&progress=${progress}`;

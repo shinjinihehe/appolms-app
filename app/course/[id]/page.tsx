@@ -297,7 +297,19 @@ export default function CourseDetailPage() {
                       {lessons.map((lesson: any, li: number) => {
                         const isCompleted = lesson.is_completed === "1" || lesson.is_completed == 1;
                         return (
-                          <div key={li} className="flex items-center px-4 py-3 border-b border-[#F8F8F8] last:border-0">
+                          <div 
+                            key={li} 
+                            onClick={() => {
+                              if (isPurchased) {
+                                if (lesson.lesson_type === 'quiz') {
+                                  router.push(`/quiz/${lesson.id}?course_id=${id}`);
+                                } else {
+                                  router.push(`/learn/${id}?lesson_id=${lesson.id}`);
+                                }
+                              }
+                            }}
+                            className={`flex items-center px-4 py-3 border-b border-[#F8F8F8] last:border-0 ${isPurchased ? 'cursor-pointer hover:bg-gray-50/50' : ''}`}
+                          >
                             {isPurchased && (
                               <button 
                                 onClick={async (e) => {

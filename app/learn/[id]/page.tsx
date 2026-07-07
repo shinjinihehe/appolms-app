@@ -3,6 +3,8 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useMyCourses } from "../../../hooks/useMyCourses";
+import { useAuth } from "../../context/AuthContext";
+import { useApp } from "../../context/AppContext";
 
 function CoursePlayerPageContent() {
   const params = useParams();
@@ -12,6 +14,8 @@ function CoursePlayerPageContent() {
   const lessonIdFromUrl = searchParams.get("lesson_id");
 
   const { myCourses, fetchCourseSections } = useMyCourses();
+  const { token } = useAuth();
+  const { baseUrl } = useApp();
   
   const [sections, setSections] = useState<any[]>([]);
   const [activeLesson, setActiveLesson] = useState<any>(null);
@@ -21,6 +25,10 @@ function CoursePlayerPageContent() {
   const course = myCourses.find(c => c.id.toString() === courseId) || { title: "Course Details" };
 
   useEffect(() => {
+    if (!baseUrl || !token) {
+      return;
+    }
+
     const loadData = async () => {
       setIsLoading(true);
       try {
@@ -59,7 +67,7 @@ function CoursePlayerPageContent() {
     if (courseId) {
       loadData();
     }
-  }, [courseId, lessonIdFromUrl, fetchCourseSections]);
+  }, [courseId, lessonIdFromUrl, fetchCourseSections, baseUrl, token]);
 
   const toggleSection = (sectionId: number) => {
     if (expandedSection === sectionId) {
@@ -80,6 +88,18 @@ function CoursePlayerPageContent() {
     );
 
     if (!activeLesson) {
+      if (!baseUrl || !token) {
+        return (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 text-white p-4 text-center">
+            <BackBtn />
+            <p className="text-sm font-medium">Sign in to access this lesson</p>
+            <p className="mt-2 text-xs text-white/70 max-w-[260px] leading-5">
+              The quiz and course curriculum load from your student session, so the app needs an active login before it can continue.
+            </p>
+          </div>
+        );
+      }
+
       return (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 text-white">
           <BackBtn />
@@ -88,7 +108,7 @@ function CoursePlayerPageContent() {
       );
     }
 
-    const { lesson_type, video_url, attachment_url } = activeLesson;
+    const { lesson_type, video_url } = activeLesson;
 
     if (["video-url", "vimeo-url", "google_drive", "system-video", "iframe"].includes(lesson_type)) {
       const url = video_url || "";
@@ -162,19 +182,30 @@ function CoursePlayerPageContent() {
     }
 
     if (lesson_type === 'quiz') {
-      const url = video_url || attachment_url;
-      if (url) {
-        return (
-          <div className="absolute inset-0 bg-white">
-            <BackBtn />
-            <iframe 
-              src={url}
-              className="w-full h-full pt-12 border-0"
-              allowFullScreen
-            />
+      return (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 text-white p-6">
+          <BackBtn />
+          <div className="w-16 h-16 bg-[#5851EF]/20 border border-[#5851EF]/30 rounded-full flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5851EF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+              <line x1="9" y1="11" x2="15" y2="11"></line>
+              <line x1="9" y1="19" x2="15" y2="19"></line>
+            </svg>
           </div>
-        );
-      }
+          <p className="text-sm font-semibold mb-2 text-center px-4">{activeLesson.title}</p>
+          <p className="text-xs text-gray-400 mb-6 text-center max-w-[240px] px-4 leading-relaxed">
+            This lesson is a quiz. Tap the button below to take it.
+          </p>
+          <button
+            onClick={() => router.push(`/quiz/${activeLesson.id}?course_id=${courseId}`)}
+            className="px-6 py-3 bg-[#5851EF] text-white rounded-xl text-xs font-semibold shadow-sm hover:bg-[#4841CF] transition-colors"
+          >
+            Take Quiz
+          </button>
+        </div>
+      );
     }
 
     // Default Fallback
@@ -191,6 +222,17 @@ function CoursePlayerPageContent() {
       </div>
     );
   };
+
+  if (!baseUrl || !token) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-black px-4 text-center text-white">
+        <p className="text-sm font-medium">Sign in to access this lesson</p>
+        <p className="mt-2 max-w-[280px] text-xs leading-5 text-white/70">
+          The quiz and course curriculum load from your student session, so the app needs an active login before it can continue.
+        </p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <div className="flex min-h-screen items-center justify-center bg-black text-white">Loading player...</div>;

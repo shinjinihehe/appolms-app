@@ -23,12 +23,7 @@ export default function MyCourseDetailPage() {
 
   const handleLessonClick = (lesson: any) => {
     if (lesson.lesson_type === "quiz") {
-      const url = lesson.video_url || lesson.attachment_url;
-      if (url) {
-        window.open(url, "_blank");
-      } else {
-        alert("Quiz is not available in the mobile app layout. Please log in on the desktop browser to take the quiz.");
-      }
+      router.push(`/quiz/${lesson.id}?course_id=${courseId}`);
     } else {
       router.push(`/learn/${courseId}?lesson_id=${lesson.id}`);
     }
