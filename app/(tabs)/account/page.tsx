@@ -12,8 +12,14 @@ export default function AccountPage() {
   const router = useRouter();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [isAuthenticated, router]);
+
   if (!isAuthenticated) {
-    return <LoginForm />;
+    return null;
   }
 
   const handleLogout = () => {

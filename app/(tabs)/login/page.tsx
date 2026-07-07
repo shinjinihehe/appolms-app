@@ -89,7 +89,7 @@ export default function LoginPage() {
         if (data.user?.email_verified_at) {
           login(data.token, data.user);
           showAlert("Login Successful", "success");
-          setTimeout(() => { router.push("/home"); }, 1000);
+          setTimeout(() => { router.push("/account"); }, 1000);
         } else {
           showAlert("Your email is not verified. Please check your inbox and verify your email before logging in.", "info");
         }
