@@ -34,8 +34,12 @@ export default function MyCoursesPage() {
             href={`/my-course/${course.id}`}
             className="bg-white rounded-[12px] shadow-[0_0_10px_rgba(0,0,0,0.04)] border border-gray-50 flex flex-col pb-4"
           >
-            <div className="p-2 w-full">
-              <PlaceholderImage />
+            <div className="p-2 w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#E8EDF1]">
+              {course.thumbnail && !course.thumbnail.includes('placeholder') ? (
+                <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover rounded-xl" />
+              ) : (
+                <PlaceholderImage />
+              )}
             </div>
             
             <div className="px-2">
