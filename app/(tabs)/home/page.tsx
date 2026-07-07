@@ -49,8 +49,12 @@ export default function HomePage() {
               <div className="p-4 text-center w-full text-sm text-gray-500">Loading top courses...</div>
             ) : topCourses.map((course) => (
               <Link key={course.id} href={`/course/${course.id}`} className="min-w-[170px] w-[170px] bg-white rounded-[20px] p-[10px] shadow-[0_2px_15px_rgba(0,0,0,0.04)] border border-gray-50 flex flex-col">
-                <div className="w-full aspect-[4/3] mb-3">
-                  <PlaceholderImage />
+                <div className="w-full aspect-[4/3] mb-3 rounded-xl overflow-hidden bg-[#E8EDF1]">
+                  {course.thumbnail && !course.thumbnail.includes('placeholder') ? (
+                    <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <PlaceholderImage />
+                  )}
                 </div>
                 <div className="flex-1 flex flex-col px-1">
                   <h3 className="font-semibold text-[#111] text-[15px] leading-tight mb-2 line-clamp-2 min-h-[38px]">{course.title}</h3>
@@ -81,8 +85,12 @@ export default function HomePage() {
                <div className="p-4 text-center text-sm text-gray-500 bg-white">Loading categories...</div>
             ) : categories.map((cat, idx) => (
               <Link key={cat.id} href={`/category/${cat.id}`} className="bg-white py-4 flex items-center">
-                <div className="w-[100px] h-[75px] rounded-xl overflow-hidden mr-4 shadow-sm">
-                  <PlaceholderImage />
+                <div className="w-[100px] h-[75px] rounded-xl overflow-hidden mr-4 shadow-sm bg-[#E8EDF1]">
+                  {cat.thumbnail && !cat.thumbnail.includes('placeholder') ? (
+                    <img src={cat.thumbnail} alt={cat.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <PlaceholderImage />
+                  )}
                 </div>
                 <div className="flex-1 flex flex-col justify-center">
                   <p className="text-[13px] text-[#757575] font-medium mb-1">{cat.number_of_sub_categories || 0} sub-categories</p>
