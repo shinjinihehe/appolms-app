@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
-import LoginForm from "../../components/LoginForm";
 import { LogoutModal } from "../../components/LogoutModal";
 
 export default function AccountPage() {
