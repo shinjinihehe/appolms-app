@@ -62,9 +62,7 @@ export default function FilterScreen() {
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </button>
         <h1 className="text-xl font-bold text-[#111]">Filter Courses</h1>
-        <button className="p-2 -mr-2 rounded-full hover:bg-gray-100 relative">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-        </button>
+        <div className="w-10"></div>
       </div>
 
       <div className="flex-1 p-4 pb-24">
@@ -210,12 +208,12 @@ export default function FilterScreen() {
                   onChange={(e) => setSelectedRating(e.target.value)}
                   className="w-full bg-transparent border-none outline-none py-3 text-[#555] text-[15px] appearance-none"
                 >
-                  <option value="all">All Rating</option>
-                  <option value="1">1 Star and higher</option>
-                  <option value="2">2 Stars and higher</option>
-                  <option value="3">3 Stars and higher</option>
-                  <option value="4">4 Stars and higher</option>
-                  <option value="5">5 Stars</option>
+                  <option value="all">All Ratings</option>
+                  <option value="1">⭐☆☆☆☆</option>
+                  <option value="2">⭐⭐☆☆☆</option>
+                  <option value="3">⭐⭐⭐☆☆</option>
+                  <option value="4">⭐⭐⭐⭐☆</option>
+                  <option value="5">⭐⭐⭐⭐⭐</option>
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
