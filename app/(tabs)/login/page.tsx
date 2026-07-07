@@ -67,18 +67,21 @@ export default function LoginPage() {
     setBaseUrl(cleanUrl);
     
     setIsLoading(true);
-    
+
     try {
-      const response = await fetch(`${cleanUrl}/api/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          email,
-          password
-        }).toString()
-      });
+      let response: Response;
+      try {
+        response = await fetch(`${cleanUrl}/api/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ email, password }).toString()
+        });
+      } catch {
+        // Network/DNS error — URL is unreachable
+        showAlert("Could not reach this organization. Please check the URL and try again.", "error");
+        setIsLoading(false);
+        return;
+      }
 
       const data = await response.json();
 
@@ -86,17 +89,30 @@ export default function LoginPage() {
         if (data.user?.email_verified_at) {
           login(data.token, data.user);
           showAlert("Login Successful", "success");
-          setTimeout(() => {
-            router.push("/home");
-          }, 1000);
+          setTimeout(() => { router.push("/home"); }, 1000);
         } else {
-          showAlert("Please verify your email before logging in.", "info");
+          showAlert("Your email is not verified. Please check your inbox and verify your email before logging in.", "info");
         }
+      } else if (response.status === 401) {
+        showAlert("Incorrect password. Please try again.", "error");
+      } else if (response.status === 404) {
+        showAlert("No account found with this email address.", "error");
+      } else if (response.status === 403) {
+        showAlert("Your account has been disabled. Please contact support.", "error");
       } else {
-        showAlert(data.message || "Login failed", "error");
+        const msg = data?.message || "";
+        if (msg.toLowerCase().includes("password")) {
+          showAlert("Incorrect password. Please try again.", "error");
+        } else if (msg.toLowerCase().includes("email")) {
+          showAlert("No account found with this email address.", "error");
+        } else if (msg.toLowerCase().includes("verified")) {
+          showAlert("Your email is not verified. Please check your inbox.", "info");
+        } else {
+          showAlert(msg || "Login failed. Please try again.", "error");
+        }
       }
-    } catch (err: any) {
-      showAlert(`An error occurred: ${err.message || err}`, "error");
+    } catch {
+      showAlert("Something went wrong. Please try again.", "error");
     } finally {
       setIsLoading(false);
     }
