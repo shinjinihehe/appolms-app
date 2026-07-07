@@ -49,6 +49,14 @@ export default function LoginPage() {
       showAlert("Please enter the Server URL.", "error");
       return;
     }
+    if (!email.trim()) {
+      showAlert("Please enter your email.", "error");
+      return;
+    }
+    if (!password.trim()) {
+      showAlert("Please enter your password.", "error");
+      return;
+    }
     
     // Save the server URL and sanitize
     const cleanUrl = serverUrl.trim().replace(/\/+$/, "");
@@ -119,7 +127,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <form onSubmit={handleLogin} className="flex flex-col flex-1">
+      <form onSubmit={handleLogin} noValidate className="flex flex-col flex-1">
         {/* Your organization Section */}
         <div className="flex flex-col gap-2 mb-6">
           <label className="text-sm font-bold text-[#111111] px-1">Your organization</label>
