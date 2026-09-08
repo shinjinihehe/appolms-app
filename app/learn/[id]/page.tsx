@@ -642,9 +642,27 @@ function CoursePlayerPageContent() {
                   Congratulations! You have completed 100% of this course. Your official certificate is ready.
                 </p>
                 <button
-                  onClick={() => {
-                    if (certificateInfo.download_url) {
+                  onClick={async () => {
+                    if (certificateInfo?.download_url) {
                       window.open(certificateInfo.download_url, "_blank");
+                      return;
+                    }
+                    if (!baseUrl || !token || !courseId) return;
+                    try {
+                      const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        setCertificateInfo(data);
+                        if (data.download_url) {
+                          window.open(data.download_url, "_blank");
+                        } else if (data.identifier) {
+                          window.open(`${baseUrl}/certificate/${data.identifier}`, "_blank");
+                        }
+                      }
+                    } catch (e) {
+                      console.error(e);
                     }
                   }}
                   className="px-6 py-3 bg-[#5851EF] text-white text-xs font-bold rounded-xl hover:bg-[#4841CF] transition-colors shadow-sm"

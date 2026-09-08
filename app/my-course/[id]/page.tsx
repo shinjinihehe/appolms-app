@@ -116,6 +116,30 @@ export default function MyCourseDetailPage() {
     }
   }, [activeTab, baseUrl, token, courseId]);
 
+  const handleGetCertificate = async () => {
+    if (certificateInfo?.download_url) {
+      window.open(certificateInfo.download_url, "_blank");
+      return;
+    }
+    if (!baseUrl || !token || !courseId) return;
+    try {
+      const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCertificateInfo(data);
+        if (data.download_url) {
+          window.open(data.download_url, "_blank");
+        } else if (data.identifier) {
+          window.open(`${baseUrl}/certificate/${data.identifier}`, "_blank");
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch certificate status", e);
+    }
+  };
+
   const toggleAccordion = (id: number) => {
     if (openAccordionIds.includes(id)) {
       setOpenAccordionIds(openAccordionIds.filter(aId => aId !== id));
@@ -231,13 +255,7 @@ export default function MyCourseDetailPage() {
           {/* Get Certificate Action Button if 100% complete */}
           {(certificateInfo?.is_eligible || (course?.completion || 0) >= 100) && (
             <button
-              onClick={() => {
-                if (certificateInfo?.download_url) {
-                  window.open(certificateInfo.download_url, "_blank");
-                } else if (baseUrl) {
-                  window.open(`${baseUrl}/certificate_status?course_id=${courseId}`, "_blank");
-                }
-              }}
+              onClick={handleGetCertificate}
               className="mt-4 w-full bg-[#5851EF] text-white py-3 rounded-2xl font-semibold text-[14px] flex items-center justify-center gap-2 shadow-sm hover:bg-[#4841CF] transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -460,13 +478,7 @@ export default function MyCourseDetailPage() {
                   Congratulations! You have completed 100% of this course. Your official certificate is ready.
                 </p>
                 <button
-                  onClick={() => {
-                    if (certificateInfo?.download_url) {
-                      window.open(certificateInfo.download_url, "_blank");
-                    } else if (baseUrl) {
-                      window.open(`${baseUrl}/certificate_status?course_id=${courseId}`, "_blank");
-                    }
-                  }}
+                  onClick={handleGetCertificate}
                   className="px-6 py-3 bg-[#5851EF] text-white text-xs font-bold rounded-xl hover:bg-[#4841CF] transition-colors shadow-sm"
                 >
                   Get Certificate
