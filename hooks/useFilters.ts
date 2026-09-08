@@ -12,15 +12,17 @@ export function useFilters() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchFiltersData = useCallback(async () => {
-    if (!baseUrl || !token) return;
+    if (!baseUrl) return;
     setIsLoading(true);
     setError(null);
     try {
-      const headers = {
+      const headers: Record<string, string> = {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
       };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
 
       // Fetch categories
       const catRes = await fetch(`${baseUrl}/api/all_categories`, { headers });

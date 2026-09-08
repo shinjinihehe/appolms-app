@@ -111,7 +111,7 @@ export default function FilterScreen() {
               >
                 <option value="all">All Category</option>
                 {categories.map((cat: any) => (
-                  <option key={cat.id} value={cat.id.toString()}>{cat.title}</option>
+                  <option key={cat.id} value={cat.id.toString()}>{cat.title || cat.name}</option>
                 ))}
               </select>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -131,7 +131,7 @@ export default function FilterScreen() {
                 >
                   <option value="all">All Sub-Category</option>
                   {subCategories.map((sub: any) => (
-                    <option key={sub.id} value={sub.id.toString()}>{sub.title}</option>
+                    <option key={sub.id} value={sub.id.toString()}>{sub.title || sub.name}</option>
                   ))}
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
