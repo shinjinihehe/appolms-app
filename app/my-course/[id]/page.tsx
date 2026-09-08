@@ -79,12 +79,13 @@ export default function MyCourseDetailPage() {
         const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (res.ok) {
+        const contentType = res.headers.get("content-type");
+        if (res.ok && contentType && contentType.includes("application/json")) {
           const data = await res.json();
           setCertificateInfo(data);
         }
       } catch (e) {
-        console.error(e);
+        console.error("Failed to fetch certificate status", e);
       } finally {
         setIsLoadingCertificate(false);
       }
@@ -102,7 +103,8 @@ export default function MyCourseDetailPage() {
           const res = await fetch(`${baseUrl}/api/notice_board?course_id=${courseId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
-          if (res.ok) {
+          const contentType = res.headers.get("content-type");
+          if (res.ok && contentType && contentType.includes("application/json")) {
             const data = await res.json();
             setNotices(Array.isArray(data) ? data : []);
           }
@@ -126,7 +128,8 @@ export default function MyCourseDetailPage() {
       const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (res.ok) {
+      const contentType = res.headers.get("content-type");
+      if (res.ok && contentType && contentType.includes("application/json")) {
         const data = await res.json();
         setCertificateInfo(data);
         if (data.download_url) {
@@ -134,6 +137,8 @@ export default function MyCourseDetailPage() {
         } else if (data.identifier) {
           window.open(`${baseUrl}/certificate/${data.identifier}`, "_blank");
         }
+      } else {
+        alert("The backend API endpoint is updating. Please pull the latest main branch on Hostinger.");
       }
     } catch (e) {
       console.error("Failed to fetch certificate status", e);

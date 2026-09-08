@@ -47,7 +47,8 @@ function CoursePlayerPageContent() {
           const res = await fetch(`${baseUrl}/api/notice_board?course_id=${courseId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
-          if (res.ok) {
+          const contentType = res.headers.get("content-type");
+          if (res.ok && contentType && contentType.includes("application/json")) {
             const data = await res.json();
             setNotices(Array.isArray(data) ? data : []);
           }
@@ -67,7 +68,8 @@ function CoursePlayerPageContent() {
           const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
-          if (res.ok) {
+          const contentType = res.headers.get("content-type");
+          if (res.ok && contentType && contentType.includes("application/json")) {
             const data = await res.json();
             setCertificateInfo(data);
           }
@@ -87,7 +89,8 @@ function CoursePlayerPageContent() {
           const res = await fetch(`${baseUrl}/api/zoom/meetings?course_id=${courseId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
-          if (res.ok) {
+          const contentType = res.headers.get("content-type");
+          if (res.ok && contentType && contentType.includes("application/json")) {
             const data = await res.json();
             setLiveClasses(Array.isArray(data) ? data : []);
           }
