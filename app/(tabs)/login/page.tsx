@@ -119,7 +119,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col pt-12 px-6 pb-24">
+    <div className="min-h-screen bg-white flex flex-col pt-12 px-6 pb-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
@@ -180,7 +180,7 @@ export default function LoginPage() {
         {/* Separator */}
         <div className="flex items-center my-6">
           <div className="flex-1 border-t border-gray-200"></div>
-          <span className="mx-4 text-sm text-gray-400 font-medium">or</span>
+          <span className="mx-4 text-sm text-gray-400 font-medium">and</span>
           <div className="flex-1 border-t border-gray-200"></div>
         </div>
 
