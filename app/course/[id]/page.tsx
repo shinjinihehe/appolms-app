@@ -371,10 +371,15 @@ export default function CourseDetailPage() {
                     <div className="border-t border-[#F0F0F0]">
                       {lessons.map((lesson: any, li: number) => {
                         const isCompleted = lesson.is_completed === "1" || lesson.is_completed == 1;
+                        const isLocked = lesson.is_lock === 1 || lesson.is_lock === "1" || lesson.is_locked === true;
                         return (
                           <div 
                             key={li} 
                             onClick={() => {
+                              if (isLocked) {
+                                showAlert("This lesson is locked by Drip Content. Please complete previous lessons first.", "info");
+                                return;
+                              }
                               if (isPurchased) {
                                 if (lesson.lesson_type === 'quiz') {
                                   router.push(`/quiz/${lesson.id}?course_id=${id}`);
@@ -383,12 +388,16 @@ export default function CourseDetailPage() {
                                 }
                               }
                             }}
-                            className={`flex items-center px-4 py-3 border-b border-[#F8F8F8] last:border-0 ${isPurchased ? 'cursor-pointer hover:bg-gray-50/50' : ''}`}
+                            className={`flex items-center px-4 py-3 border-b border-[#F8F8F8] last:border-0 ${
+                              isLocked ? 'bg-gray-50/70 opacity-75 cursor-not-allowed' : isPurchased ? 'cursor-pointer hover:bg-gray-50/50' : ''
+                            }`}
                           >
                             {isPurchased && (
                               <button 
+                                disabled={isLocked}
                                 onClick={async (e) => {
                                   e.stopPropagation();
+                                  if (isLocked) return;
                                   const newProgress = isCompleted ? 0 : 100;
                                   try {
                                     await toggleLessonCompleted(lesson.id, newProgress);
@@ -399,7 +408,11 @@ export default function CourseDetailPage() {
                                 }}
                                 className="mr-3 shrink-0"
                               >
-                                {isCompleted ? (
+                                {isLocked ? (
+                                  <div className="w-[18px] h-[18px] rounded-[3px] bg-gray-200 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#777" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                  </div>
+                                ) : isCompleted ? (
                                   <div className="w-[18px] h-[18px] rounded-[3px] bg-[#5851EF] flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                   </div>
@@ -410,7 +423,9 @@ export default function CourseDetailPage() {
                             )}
 
                             <div className="mr-3 shrink-0 text-[#757575] flex items-center">
-                              {!isPurchased ? (
+                              {isLocked ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                              ) : !isPurchased ? (
                                 <div className="w-8 h-8 rounded-full border border-[#DDD] flex items-center justify-center shrink-0">
                                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <polygon points="5 3 19 12 5 21 5 3"></polygon>
