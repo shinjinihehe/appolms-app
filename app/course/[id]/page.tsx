@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCourses } from "../../../hooks/useCourses";
 import { useAuth } from "../../context/AuthContext";
 import { useMyCourses } from "../../../hooks/useMyCourses";
+import { useWishlist } from "../../../hooks/useWishlist";
 import { AlertPopup } from "../../components/AlertPopup";
 
 const parseList = (data: any): string[] => {
@@ -22,6 +23,7 @@ export default function CourseDetailPage() {
   const { id } = params;
   const { fetchCourseDetails, enrollFreeCourse } = useCourses();
   const { token } = useAuth();
+  const { toggleWishlist } = useWishlist();
 
   const [course, setCourse] = useState<any>(null);
   const [sections, setSections] = useState<any[]>([]);
@@ -65,6 +67,36 @@ export default function CourseDetailPage() {
       showAlert(err?.message || "Something went wrong. Please try again.", "error");
     } finally {
       setIsEnrolling(false);
+    }
+  };
+
+  const isWishlisted = Boolean(course?.is_wishlisted && course.is_wishlisted !== "false" && course.is_wishlisted !== 0);
+
+  const handleToggleWishlist = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    if (!token) {
+      showAlert("Please log in to manage your wishlist", "info");
+      setTimeout(() => {
+        router.push("/login");
+      }, 1000);
+      return;
+    }
+    const currentIsWishlisted = isWishlisted;
+    setCourse((prev: any) => prev ? { ...prev, is_wishlisted: !currentIsWishlisted } : prev);
+    try {
+      const res = await toggleWishlist(id as string);
+      const isNowWishlisted = res?.status === "added" ? true : res?.status === "removed" ? false : !currentIsWishlisted;
+      setCourse((prev: any) => prev ? { ...prev, is_wishlisted: isNowWishlisted } : prev);
+      showAlert(
+        isNowWishlisted ? "Added to wishlist" : "Removed from wishlist",
+        "success"
+      );
+    } catch (err) {
+      setCourse((prev: any) => prev ? { ...prev, is_wishlisted: currentIsWishlisted } : prev);
+      showAlert("Failed to update wishlist", "error");
     }
   };
 
@@ -205,28 +237,31 @@ export default function CourseDetailPage() {
         )}
 
         {/* Back */}
-        <button onClick={() => router.back()} className="absolute top-10 left-4 z-10">
+        <button onClick={() => router.back()} className="absolute top-10 left-4 z-20 cursor-pointer p-1">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </button>
 
-
         {/* Play button */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-[50px] h-[50px] rounded-full bg-white shadow-md flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-[50px] h-[50px] rounded-full bg-white shadow-md flex items-center justify-center pointer-events-auto cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="#333" stroke="#333" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
           </div>
         </div>
 
         {/* Heart / Wishlist */}
-        <div className="absolute top-12 right-14 z-10">
-          <div className="w-[38px] h-[38px] rounded-full flex items-center justify-center"
-            style={{ background: course.is_wishlisted ? "white" : "rgba(150,150,150,0.35)" }}>
+        <button
+          onClick={handleToggleWishlist}
+          aria-label="Toggle Wishlist"
+          className="absolute top-8 right-4 z-20 p-2 cursor-pointer active:scale-95 transition-transform"
+        >
+          <div className="w-[38px] h-[38px] rounded-full flex items-center justify-center shadow-md transition-colors"
+            style={{ background: isWishlisted ? "white" : "rgba(150,150,150,0.35)" }}>
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-              fill={course.is_wishlisted ? "#5851EF" : "white"} stroke={course.is_wishlisted ? "#5851EF" : "white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              fill={isWishlisted ? "#5851EF" : "white"} stroke={isWishlisted ? "#5851EF" : "white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Body content */}
@@ -449,11 +484,14 @@ export default function CourseDetailPage() {
             </button>
           ) : isPaid ? (
             <button
-              onClick={() => router.push("/my-wishlists")}
-              className="flex-1 py-3 rounded-xl text-[14px] font-medium border border-[#5851EF]"
-              style={{ color: "#5851EF", background: "white" }}
+              onClick={isWishlisted ? () => router.push("/my-wishlists") : handleToggleWishlist}
+              className="flex-1 py-3 rounded-xl text-[14px] font-medium border border-[#5851EF] active:scale-[0.98] transition-all"
+              style={{
+                color: isWishlisted ? "white" : "#5851EF",
+                background: isWishlisted ? "#5851EF" : "white"
+              }}
             >
-              {course.is_wishlisted ? "View Wishlist" : "Add to Wishlist"}
+              {isWishlisted ? "View Wishlist" : "Add to Wishlist"}
             </button>
           ) : (
             /* Free → Enroll Now */
