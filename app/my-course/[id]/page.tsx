@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useMyCourses } from "../../../hooks/useMyCourses";
+import { useApp } from "../../context/AppContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function MyCourseDetailPage() {
   const router = useRouter();
@@ -10,14 +12,21 @@ export default function MyCourseDetailPage() {
   const courseId = params.id as string;
 
   const { myCourses, fetchCourseSections, fetchLiveClass, toggleLessonCompleted } = useMyCourses();
+  const { baseUrl } = useApp();
+  const { token } = useAuth();
   
-  const [activeTab, setActiveTab] = useState("lessons");
+  const [activeTab, setActiveTab] = useState<"lessons" | "summary" | "liveClass" | "certificate" | "noticeBoard">("lessons");
   const [openAccordionIds, setOpenAccordionIds] = useState<number[]>([]);
   const [sections, setSections] = useState<any[]>([]);
   const [liveClassData, setLiveClassData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+
+  const [notices, setNotices] = useState<any[]>([]);
+  const [isLoadingNotices, setIsLoadingNotices] = useState(false);
+  const [certificateInfo, setCertificateInfo] = useState<any>(null);
+  const [isLoadingCertificate, setIsLoadingCertificate] = useState(false);
 
   const course = myCourses.find(c => c.id.toString() === courseId) || null;
 
@@ -59,6 +68,53 @@ export default function MyCourseDetailPage() {
       loadData();
     }
   }, [courseId, fetchCourseSections, fetchLiveClass]);
+
+  useEffect(() => {
+    if (!baseUrl || !token || !courseId) return;
+
+    // Fetch certificate status on load
+    const fetchCertificate = async () => {
+      setIsLoadingCertificate(true);
+      try {
+        const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCertificateInfo(data);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoadingCertificate(false);
+      }
+    };
+    fetchCertificate();
+  }, [baseUrl, token, courseId]);
+
+  useEffect(() => {
+    if (!baseUrl || !token || !courseId) return;
+
+    if (activeTab === "noticeBoard") {
+      const fetchNotices = async () => {
+        setIsLoadingNotices(true);
+        try {
+          const res = await fetch(`${baseUrl}/api/notice_board?course_id=${courseId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setNotices(Array.isArray(data) ? data : []);
+          }
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setIsLoadingNotices(false);
+        }
+      };
+      fetchNotices();
+    }
+  }, [activeTab, baseUrl, token, courseId]);
 
   const toggleAccordion = (id: number) => {
     if (openAccordionIds.includes(id)) {
@@ -171,44 +227,50 @@ export default function MyCourseDetailPage() {
             <span>{course?.completion || 0}% Complete</span>
             <span>{course?.total_number_of_completed_lessons || 0}/{course?.total_number_of_lessons || 0}</span>
           </div>
+
+          {/* Get Certificate Action Button if 100% complete */}
+          {(certificateInfo?.is_eligible || (course?.completion || 0) >= 100) && (
+            <button
+              onClick={() => {
+                if (certificateInfo?.download_url) {
+                  window.open(certificateInfo.download_url, "_blank");
+                } else if (baseUrl) {
+                  window.open(`${baseUrl}/certificate_status?course_id=${courseId}`, "_blank");
+                }
+              }}
+              className="mt-4 w-full bg-[#5851EF] text-white py-3 rounded-2xl font-semibold text-[14px] flex items-center justify-center gap-2 shadow-sm hover:bg-[#4841CF] transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="8" r="7"></circle>
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+              </svg>
+              Get Certificate
+            </button>
+          )}
         </div>
 
-        {/* Tabs Row */}
-        <div className="flex space-x-3 mb-6">
-          <button 
-            onClick={() => setActiveTab("lessons")}
-            className={`flex-1 flex items-center justify-center py-3.5 rounded-2xl font-medium text-[15px] transition-colors ${
-              activeTab === "lessons" 
-                ? "bg-[#5851EF] text-white" 
-                : "bg-white text-[#5851EF]"
-            }`}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-              <polyline points="10 9 9 9 8 9"></polyline>
-            </svg>
-            Lessons
-          </button>
-          
-          <button 
-            onClick={() => setActiveTab("liveClass")}
-            className={`flex-1 flex items-center justify-center py-3.5 rounded-2xl font-medium text-[15px] transition-colors ${
-              activeTab === "liveClass" 
-                ? "bg-[#5851EF] text-white" 
-                : "bg-white text-[#5851EF]"
-            }`}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-              <polygon points="23 7 16 12 23 17 23 7"></polygon>
-              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-              <line x1="8" y1="8" x2="8" y2="16"></line>
-              <line x1="4" y1="12" x2="12" y2="12"></line>
-            </svg>
-            Live Class
-          </button>
+        {/* Tabs Row (Scrollable Horizontal Pills) */}
+        <div className="flex space-x-2 mb-6 overflow-x-auto scrollbar-hide py-1">
+          {[
+            { id: "lessons", label: "Lessons", icon: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> },
+            { id: "summary", label: "Summary", icon: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg> },
+            { id: "liveClass", label: "Live Class", icon: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg> },
+            { id: "certificate", label: "Certificate", icon: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg> },
+            { id: "noticeBoard", label: "Notice Board", icon: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center px-4 py-3 rounded-2xl font-medium text-[14px] whitespace-nowrap transition-colors ${
+                activeTab === tab.id
+                  ? "bg-[#5851EF] text-white shadow-sm"
+                  : "bg-white text-[#5851EF] border border-gray-100"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Tab Content */}
@@ -261,9 +323,7 @@ export default function MyCourseDetailPage() {
                                 e.stopPropagation();
                                 const newProgress = lesson.is_completed == 1 ? 0 : 1;
                                 try {
-                                  // Optimistically update UI if you want, but for now just call API and refresh data
                                   await toggleLessonCompleted(lesson.id, newProgress);
-                                  // Re-fetch course sections to get updated progress
                                   const updatedSections = await fetchCourseSections(courseId);
                                   setSections(updatedSections);
                                 } catch (err) {
@@ -285,7 +345,7 @@ export default function MyCourseDetailPage() {
                               {["video-url", "vimeo-url", "google_drive", "system-video"].includes(lesson.lesson_type) ? (
                                 <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                                   <path d="M9.86333 15.0058C9.47833 15.0058 9.12083 14.9141 8.8 14.7308C8.06666 14.3091 7.645 13.4474 7.645 12.3566V9.64328C7.645 8.56161 8.06666 7.69078 8.8 7.26911C9.53333 6.84744 10.4867 6.91161 11.4308 7.46161L13.7867 8.81828C14.7217 9.35911 15.2625 10.1566 15.2625 10.9999C15.2625 11.8433 14.7217 12.6408 13.7867 13.1816L11.4308 14.5383C10.8992 14.8499 10.3583 15.0058 9.86333 15.0058ZM9.8725 8.36911C9.72583 8.36911 9.5975 8.39661 9.49666 8.46078C9.20333 8.63494 9.02916 9.06578 9.02916 9.64328V12.3566C9.02916 12.9341 9.19416 13.3649 9.49666 13.5391C9.79 13.7133 10.2483 13.6399 10.7525 13.3466L13.1083 11.9899C13.6125 11.6966 13.8967 11.3391 13.8967 10.9999C13.8967 10.6608 13.6125 10.2941 13.1083 10.0099L10.7525 8.65328C10.4225 8.46078 10.12 8.36911 9.8725 8.36911Z" fill="currentColor"/>
-                                  <path d="M11 20.8542C5.56417 20.8542 1.14584 16.4359 1.14584 11C1.14584 5.56421 5.56417 1.14587 11 1.14587C16.4358 1.14587 20.8542 5.56421 20.8542 11C20.8542 16.4359 16.4358 20.8542 11 20.8542ZM11 2.52087C6.325 2.52087 2.52084 6.32504 2.52084 11C2.52084 15.675 6.325 19.4792 11 19.4792C15.675 19.4792 19.4792 15.675 19.4792 11C19.4792 6.32504 15.675 2.52087 11 2.52087Z" fill="currentColor"/>
+                                  <path d="M11 20.8542C5.56417 20.8542 1.14584 16.4359 1.14584 11C1.14584 5.56421 5.56417 1.14587 11 1.14587C16.4358 1.14587 20.8542 5.56421 20.8542 11C20.8542 16.4359 16.4358 20.8542 11 20.8542ZM11 2.52087C6.325 2.52087 2.52084 6.32504 2.52084 11C2.52084 15.675 6.325 19.4792 11 19.4792C15.675 19.4792 19.4792 15.675 11 19.4792C19.4792 6.32504 15.675 2.52087 11 2.52087Z" fill="currentColor"/>
                                 </svg>
                               ) : lesson.lesson_type === "quiz" ? (
                                 <svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -333,10 +393,21 @@ export default function MyCourseDetailPage() {
           </div>
         )}
 
+        {/* Summary Tab */}
+        {activeTab === "summary" && (
+          <div className="bg-white rounded-[16px] p-5 shadow-[0_2px_20px_rgba(0,0,0,0.03)] space-y-4">
+            <h2 className="text-[17px] font-semibold text-[#111]">{course ? course.title : "Course Overview"}</h2>
+            <p className="text-[14px] text-[#555] leading-relaxed">
+              Welcome to {course?.title || "this course"}. Use the curriculum lessons tab above to start watching your course modules.
+            </p>
+          </div>
+        )}
+
+        {/* Live Class Tab */}
         {activeTab === "liveClass" && (!liveClassData || !liveClassData.live_classes || liveClassData.live_classes.length === 0) && (
-          <div className="mt-4 px-2">
-            <div className="bg-[#2A2A2A] text-white p-4 text-center text-[15px] leading-relaxed">
-              No live class is scheduled to this course yet. Please come back later.
+          <div className="mt-2 px-2">
+            <div className="bg-[#2A2A2A] text-white p-4 rounded-xl text-center text-[15px] leading-relaxed">
+              No live class is scheduled for this course yet. Please come back later.
             </div>
           </div>
         )}
@@ -368,6 +439,81 @@ export default function MyCourseDetailPage() {
             </a>
           </div>
         ))}
+
+        {/* Certificate Tab */}
+        {activeTab === "certificate" && (
+          <div className="bg-white rounded-[16px] p-6 shadow-[0_2px_20px_rgba(0,0,0,0.03)] flex flex-col items-center text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-[#5851EF]/10 flex items-center justify-center text-[#5851EF]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="8" r="7"></circle>
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+              </svg>
+            </div>
+
+            <h3 className="text-[17px] font-bold text-[#111]">Course Completion Certificate</h3>
+            
+            {isLoadingCertificate ? (
+              <p className="text-xs text-gray-500">Checking completion status...</p>
+            ) : (certificateInfo?.is_eligible || (course?.completion || 0) >= 100) ? (
+              <div className="w-full flex flex-col items-center space-y-3">
+                <p className="text-xs text-gray-600 max-w-xs leading-relaxed">
+                  Congratulations! You have completed 100% of this course. Your official certificate is ready.
+                </p>
+                <button
+                  onClick={() => {
+                    if (certificateInfo?.download_url) {
+                      window.open(certificateInfo.download_url, "_blank");
+                    } else if (baseUrl) {
+                      window.open(`${baseUrl}/certificate_status?course_id=${courseId}`, "_blank");
+                    }
+                  }}
+                  className="px-6 py-3 bg-[#5851EF] text-white text-xs font-bold rounded-xl hover:bg-[#4841CF] transition-colors shadow-sm"
+                >
+                  Get Certificate
+                </button>
+              </div>
+            ) : (
+              <div className="w-full flex flex-col items-center space-y-3">
+                <p className="text-xs text-gray-600 max-w-xs leading-relaxed">
+                  Complete 100% of the course curriculum to unlock your certificate.
+                </p>
+                <div className="w-full bg-gray-100 rounded-full h-3 max-w-xs overflow-hidden">
+                  <div
+                    className="bg-[#5851EF] h-full rounded-full transition-all duration-300"
+                    style={{ width: `${course?.completion || certificateInfo?.progress || 0}%` }}
+                  ></div>
+                </div>
+                <span className="text-xs font-semibold text-[#5851EF]">{course?.completion || certificateInfo?.progress || 0}% Complete</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Notice Board Tab */}
+        {activeTab === "noticeBoard" && (
+          <div className="space-y-3">
+            {isLoadingNotices ? (
+              <div className="text-center py-8 text-sm text-gray-500">Loading notices...</div>
+            ) : notices.length === 0 ? (
+              <div className="text-center py-10 bg-white rounded-[16px] border border-gray-100 text-gray-500 text-sm">
+                No notices found for this course.
+              </div>
+            ) : (
+              notices.map((notice: any) => (
+                <div key={notice.id} className="bg-white rounded-[16px] p-5 shadow-[0_2px_20px_rgba(0,0,0,0.03)] space-y-2">
+                  <h3 className="font-bold text-base text-[#111]">{notice.title}</h3>
+                  <p className="text-xs text-gray-400">
+                    Posted on {notice.created_at ? new Date(notice.created_at).toLocaleDateString() : "Recent"}
+                  </p>
+                  <div
+                    className="prose prose-sm max-w-none text-[#333] text-xs leading-relaxed mt-2"
+                    dangerouslySetInnerHTML={{ __html: notice.description || "" }}
+                  />
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
