@@ -77,6 +77,24 @@ export function useCourses() {
     }
   }, [baseUrl, token]);
 
+  const enrollFreeCourse = useCallback(async (courseId: string | number) => {
+    if (!baseUrl || !token) return { status: false, message: "Please log in to enroll." };
+    try {
+      const res = await fetch(`${baseUrl}/api/free_course_enroll/${courseId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      if (!res.ok) throw new Error("Failed to enroll");
+      const data = await res.json();
+      return data;
+    } catch (err: any) {
+      return { status: false, message: err.message || "Failed to enroll in free course" };
+    }
+  }, [baseUrl, token]);
+
   useEffect(() => {
     if (baseUrl) {
       fetchTopCourses();
@@ -90,5 +108,6 @@ export function useCourses() {
     fetchTopCourses,
     fetchFilteredCourses,
     fetchCourseDetails,
+    enrollFreeCourse,
   };
 }

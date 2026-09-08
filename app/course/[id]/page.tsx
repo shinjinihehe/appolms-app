@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCourses } from "../../../hooks/useCourses";
 import { useAuth } from "../../context/AuthContext";
 import { useMyCourses } from "../../../hooks/useMyCourses";
+import { AlertPopup } from "../../components/AlertPopup";
 
 const parseList = (data: any): string[] => {
   if (Array.isArray(data)) return data.map(String);
@@ -19,14 +20,53 @@ export default function CourseDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { id } = params;
-  const { fetchCourseDetails } = useCourses();
+  const { fetchCourseDetails, enrollFreeCourse } = useCourses();
   const { token } = useAuth();
 
   const [course, setCourse] = useState<any>(null);
   const [sections, setSections] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEnrolling, setIsEnrolling] = useState(false);
   const [activeTab, setActiveTab] = useState<"includes" | "outcomes" | "required">("includes");
   const [openSections, setOpenSections] = useState<number[]>([0]);
+
+  const [alertState, setAlertState] = useState<{
+    isOpen: boolean;
+    message: string;
+    type: "success" | "error" | "info";
+  }>({
+    isOpen: false,
+    message: "",
+    type: "info",
+  });
+
+  const showAlert = (message: string, type: "success" | "error" | "info" = "info") => {
+    setAlertState({ isOpen: true, message, type });
+  };
+
+  const handleEnroll = async () => {
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    setIsEnrolling(true);
+    try {
+      const res = await enrollFreeCourse(id as string);
+      if (res && (res.status === true || res.status === 1 || (res.message && res.message.toLowerCase().includes("enrolled")))) {
+        showAlert(res.message || "Enrolled successfully!", "success");
+        await refreshCourseData();
+        setTimeout(() => {
+          router.push(`/my-course/${id}`);
+        }, 800);
+      } else {
+        showAlert(res?.message || "Failed to enroll. Please try again.", "error");
+      }
+    } catch (err: any) {
+      showAlert(err?.message || "Something went wrong. Please try again.", "error");
+    } finally {
+      setIsEnrolling(false);
+    }
+  };
 
   const { toggleLessonCompleted, fetchCourseSections } = useMyCourses();
 
@@ -418,14 +458,29 @@ export default function CourseDetailPage() {
           ) : (
             /* Free → Enroll Now */
             <button
-              className="flex-1 py-3 rounded-xl text-white text-[14px] font-medium"
+              onClick={handleEnroll}
+              disabled={isEnrolling}
+              className="flex-1 py-3 rounded-xl text-white text-[14px] font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
               style={{ background: "#5851EF" }}
             >
-              Enroll Now
+              {isEnrolling ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Enrolling...</span>
+                </>
+              ) : (
+                "Enroll Now"
+              )}
             </button>
           )}
         </div>
       </div>
+      <AlertPopup
+        isOpen={alertState.isOpen}
+        message={alertState.message}
+        type={alertState.type}
+        onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }
