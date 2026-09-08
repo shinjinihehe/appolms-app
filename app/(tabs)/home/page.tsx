@@ -9,15 +9,16 @@ import { useApp } from "../../context/AppContext";
 
 export default function HomePage() {
   const router = useRouter();
-  const { topCourses, isLoadingTopCourses } = useCourses();
+  const { topCourses, isLoadingTopCourses, fetchTopCourses } = useCourses();
   const { categories, fetchCategories, isLoadingCategories } = useCategories();
   const { baseUrl } = useApp();
 
   useEffect(() => {
     if (baseUrl) {
       fetchCategories();
+      fetchTopCourses();
     }
-  }, [baseUrl, fetchCategories]);
+  }, [baseUrl, fetchCategories, fetchTopCourses]);
 
   const PlaceholderImage = () => (
     <div className="w-full h-full bg-[#E8EDF1] flex items-center justify-center rounded-xl">

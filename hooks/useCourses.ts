@@ -95,11 +95,7 @@ export function useCourses() {
     }
   }, [baseUrl, token]);
 
-  useEffect(() => {
-    if (baseUrl) {
-      fetchTopCourses();
-    }
-  }, [baseUrl, fetchTopCourses]);
+
 
   return {
     topCourses,
