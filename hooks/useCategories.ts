@@ -1,8 +1,10 @@
 import { useState, useCallback } from "react";
 import { useApp } from "../app/context/AppContext";
+import { useAuth } from "../app/context/AuthContext";
 
 export function useCategories() {
   const { baseUrl } = useApp();
+  const { token } = useAuth();
   
   const [categories, setCategories] = useState<any[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
@@ -17,7 +19,11 @@ export function useCategories() {
     setIsLoadingCategories(true);
     setErrorCategories(null);
     try {
-      const res = await fetch(`${baseUrl}/api/categories`);
+      const headers: Record<string, string> = {
+        "Accept": "application/json"
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const res = await fetch(`${baseUrl}/api/categories`, { headers });
       if (!res.ok) throw new Error("Failed to fetch categories");
       const data = await res.json();
       setCategories(data || []);
@@ -28,14 +34,18 @@ export function useCategories() {
     } finally {
       setIsLoadingCategories(false);
     }
-  }, [baseUrl]);
+  }, [baseUrl, token]);
 
   const fetchCategoryWiseCourses = useCallback(async (categoryId: string | number) => {
     if (!baseUrl) return;
     setIsLoadingCategoryCourses(true);
     setErrorCategoryCourses(null);
     try {
-      const res = await fetch(`${baseUrl}/api/category_wise_course?category_id=${categoryId}`);
+      const headers: Record<string, string> = {
+        "Accept": "application/json"
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const res = await fetch(`${baseUrl}/api/category_wise_course?category_id=${categoryId}`, { headers });
       if (!res.ok) throw new Error("Failed to fetch category courses");
       const data = await res.json();
       setCategoryCourses(data || []);
@@ -46,7 +56,7 @@ export function useCategories() {
     } finally {
       setIsLoadingCategoryCourses(false);
     }
-  }, [baseUrl]);
+  }, [baseUrl, token]);
 
   return {
     categories,

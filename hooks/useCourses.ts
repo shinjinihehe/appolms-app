@@ -15,7 +15,11 @@ export function useCourses() {
     setIsLoadingTopCourses(true);
     setErrorTopCourses(null);
     try {
-      const res = await fetch(`${baseUrl}/api/top_courses`);
+      const headers: Record<string, string> = {
+        "Accept": "application/json"
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const res = await fetch(`${baseUrl}/api/top_courses`, { headers });
       if (!res.ok) throw new Error("Failed to fetch top courses");
       const data = await res.json();
       setTopCourses(data || []);
@@ -26,7 +30,7 @@ export function useCourses() {
     } finally {
       setIsLoadingTopCourses(false);
     }
-  }, [baseUrl]);
+  }, [baseUrl, token]);
 
   const fetchFilteredCourses = useCallback(async (
     categoryId: string = "all", 
@@ -40,8 +44,12 @@ export function useCourses() {
     setIsLoadingTopCourses(true);
     setErrorTopCourses(null);
     try {
+      const headers: Record<string, string> = {
+        "Accept": "application/json"
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
       const url = `${baseUrl}/api/filter_course?selected_category=${categoryId}&selected_price=${price}&selected_level=${level}&selected_language=${language}&selected_rating=${rating}&selected_search_string=${encodeURIComponent(search)}`;
-      const res = await fetch(url);
+      const res = await fetch(url, { headers });
       if (!res.ok) throw new Error("Failed to fetch filtered courses");
       const data = await res.json();
       setTopCourses(data || []);
@@ -52,7 +60,7 @@ export function useCourses() {
     } finally {
       setIsLoadingTopCourses(false);
     }
-  }, [baseUrl]);
+  }, [baseUrl, token]);
 
   const fetchCourseDetails = useCallback(async (courseId: string | number) => {
     if (!baseUrl) return null;
