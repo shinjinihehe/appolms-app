@@ -386,13 +386,17 @@ function CoursePlayerPageContent() {
 
     // Text lesson
     if (lesson_type === 'text') {
+      const textContent = activeLesson.attachment || activeLesson.description || activeLesson.summary || activeLesson.text_description || "";
       return (
         <div className="absolute inset-0 bg-white overflow-y-auto">
           <BackBtn />
           <div className="pt-14 px-5 pb-8">
             <h2 className="text-[17px] font-semibold text-[#111] mb-4">{activeLesson.title}</h2>
-            {activeLesson.summary ? (
-              <div className="prose prose-sm max-w-none text-[#333] leading-relaxed text-sm" dangerouslySetInnerHTML={{ __html: activeLesson.summary }} />
+            {textContent ? (
+              <div
+                className="prose prose-sm max-w-none text-[#333] leading-relaxed text-sm break-words"
+                dangerouslySetInnerHTML={{ __html: textContent }}
+              />
             ) : (
               <p className="text-sm text-gray-500">No content available.</p>
             )}
