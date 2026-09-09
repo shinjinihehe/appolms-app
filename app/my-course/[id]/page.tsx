@@ -122,10 +122,24 @@ export default function MyCourseDetailPage() {
     }
   }, [activeTab, baseUrl, token, courseId]);
 
+  const [downloadToast, setDownloadToast] = useState(false);
+
   const openCertificateUrl = (url: string) => {
     if (!url) return;
     const finalUrl = url.includes("auto_download") ? url : `${url}${url.includes("?") ? "&" : "?"}auto_download=1`;
-    window.location.href = finalUrl;
+
+    // Download file directly in background iframe so user stays inside the app
+    let iframe = document.getElementById("hidden-cert-iframe") as HTMLIFrameElement;
+    if (!iframe) {
+      iframe = document.createElement("iframe");
+      iframe.id = "hidden-cert-iframe";
+      iframe.style.display = "none";
+      document.body.appendChild(iframe);
+    }
+    iframe.src = finalUrl;
+
+    setDownloadToast(true);
+    setTimeout(() => setDownloadToast(false), 4000);
   };
 
   const handleGetCertificate = async () => {
@@ -197,6 +211,17 @@ export default function MyCourseDetailPage() {
       {shareCopied && (
         <div className="fixed top-14 left-1/2 -translate-x-1/2 z-[100] bg-[#333] text-white text-[13px] font-medium px-4 py-2 rounded-xl shadow-lg">
           Link copied to clipboard!
+        </div>
+      )}
+
+      {/* Download toast */}
+      {downloadToast && (
+        <div className="fixed top-14 left-1/2 -translate-x-1/2 z-[100] bg-[#1a237e] text-white text-[13px] font-medium px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2">
+          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Downloading certificate...
         </div>
       )}
       {/* Header */}
