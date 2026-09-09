@@ -118,13 +118,18 @@ export default function MyCourseDetailPage() {
     }
   }, [activeTab, baseUrl, token, courseId]);
 
+  const openCertificateUrl = (url: string) => {
+    if (!url) return;
+    window.location.href = url;
+  };
+
   const handleGetCertificate = async () => {
     if (certificateInfo?.download_url) {
-      window.open(certificateInfo.download_url, "_blank");
+      openCertificateUrl(certificateInfo.download_url);
       return;
     }
     if (certificateInfo?.identifier && baseUrl) {
-      window.open(`${baseUrl}/certificate/${certificateInfo.identifier}`, "_blank");
+      openCertificateUrl(`${baseUrl}/certificate/${certificateInfo.identifier}`);
       return;
     }
     if (!baseUrl || !courseId) return;
@@ -136,10 +141,9 @@ export default function MyCourseDetailPage() {
       if (res.ok && contentType && contentType.includes("application/json")) {
         const data = await res.json();
         setCertificateInfo(data);
-        if (data.download_url) {
-          window.open(data.download_url, "_blank");
-        } else if (data.identifier) {
-          window.open(`${baseUrl}/certificate/${data.identifier}`, "_blank");
+        const targetUrl = data.download_url || (data.identifier ? `${baseUrl}/certificate/${data.identifier}` : null);
+        if (targetUrl) {
+          openCertificateUrl(targetUrl);
         }
       }
     } catch (e) {

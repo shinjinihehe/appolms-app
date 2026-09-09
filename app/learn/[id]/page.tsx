@@ -646,12 +646,15 @@ function CoursePlayerPageContent() {
                 </p>
                 <button
                   onClick={async () => {
+                    const openUrl = (url: string) => {
+                      if (url) window.location.href = url;
+                    };
                     if (certificateInfo?.download_url) {
-                      window.open(certificateInfo.download_url, "_blank");
+                      openUrl(certificateInfo.download_url);
                       return;
                     }
                     if (certificateInfo?.identifier && baseUrl) {
-                      window.open(`${baseUrl}/certificate/${certificateInfo.identifier}`, "_blank");
+                      openUrl(`${baseUrl}/certificate/${certificateInfo.identifier}`);
                       return;
                     }
                     if (!baseUrl || !courseId) return;
@@ -663,10 +666,9 @@ function CoursePlayerPageContent() {
                       if (res.ok && contentType && contentType.includes("application/json")) {
                         const data = await res.json();
                         setCertificateInfo(data);
-                        if (data.download_url) {
-                          window.open(data.download_url, "_blank");
-                        } else if (data.identifier) {
-                          window.open(`${baseUrl}/certificate/${data.identifier}`, "_blank");
+                        const targetUrl = data.download_url || (data.identifier ? `${baseUrl}/certificate/${data.identifier}` : null);
+                        if (targetUrl) {
+                          openUrl(targetUrl);
                         }
                       }
                     } catch (e) {
