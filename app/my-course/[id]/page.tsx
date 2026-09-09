@@ -164,7 +164,7 @@ export default function MyCourseDetailPage() {
     }
 
     if (!targetUrl && baseUrl && courseId) {
-      targetUrl = `${baseUrl}/certificate/${courseId}`;
+      targetUrl = `${baseUrl}/certificate/${courseId}${user?.id ? `?user_id=${user.id}` : ""}`;
     }
 
     if (targetUrl) {
