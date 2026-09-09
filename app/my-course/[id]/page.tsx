@@ -123,10 +123,14 @@ export default function MyCourseDetailPage() {
       window.open(certificateInfo.download_url, "_blank");
       return;
     }
-    if (!baseUrl || !token || !courseId) return;
+    if (certificateInfo?.identifier && baseUrl) {
+      window.open(`${baseUrl}/certificate/${certificateInfo.identifier}`, "_blank");
+      return;
+    }
+    if (!baseUrl || !courseId) return;
     try {
       const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       const contentType = res.headers.get("content-type");
       if (res.ok && contentType && contentType.includes("application/json")) {
@@ -137,8 +141,6 @@ export default function MyCourseDetailPage() {
         } else if (data.identifier) {
           window.open(`${baseUrl}/certificate/${data.identifier}`, "_blank");
         }
-      } else {
-        alert("The backend API endpoint is updating. Please pull the latest main branch on Hostinger.");
       }
     } catch (e) {
       console.error("Failed to fetch certificate status", e);

@@ -650,12 +650,17 @@ function CoursePlayerPageContent() {
                       window.open(certificateInfo.download_url, "_blank");
                       return;
                     }
-                    if (!baseUrl || !token || !courseId) return;
+                    if (certificateInfo?.identifier && baseUrl) {
+                      window.open(`${baseUrl}/certificate/${certificateInfo.identifier}`, "_blank");
+                      return;
+                    }
+                    if (!baseUrl || !courseId) return;
                     try {
                       const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}`, {
-                        headers: { Authorization: `Bearer ${token}` }
+                        headers: token ? { Authorization: `Bearer ${token}` } : {}
                       });
-                      if (res.ok) {
+                      const contentType = res.headers.get("content-type");
+                      if (res.ok && contentType && contentType.includes("application/json")) {
                         const data = await res.json();
                         setCertificateInfo(data);
                         if (data.download_url) {
@@ -665,7 +670,7 @@ function CoursePlayerPageContent() {
                         }
                       }
                     } catch (e) {
-                      console.error(e);
+                      console.error("Failed to fetch certificate status", e);
                     }
                   }}
                   className="px-6 py-3 bg-[#5851EF] text-white text-xs font-bold rounded-xl hover:bg-[#4841CF] transition-colors shadow-sm"
