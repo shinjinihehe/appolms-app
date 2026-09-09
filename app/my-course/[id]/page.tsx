@@ -180,6 +180,39 @@ export default function MyCourseDetailPage() {
     }
   };
 
+  const handleShareCertificate = async () => {
+    let certUrl = certificateInfo?.download_url;
+    if (!certUrl && certificateInfo?.identifier && baseUrl) {
+      certUrl = `${baseUrl}/certificate/${certificateInfo.identifier}`;
+    }
+    if (!certUrl && baseUrl && courseId) {
+      certUrl = `${baseUrl}/certificate/${courseId}${user?.id ? `?user_id=${user.id}` : ""}`;
+    }
+    if (!certUrl) certUrl = window.location.href;
+
+    const shareData = {
+      title: `My Certificate for ${course?.title || "Course"}`,
+      text: `I completed ${course?.title || "the course"} on AppoLearn! Check out my certificate:`,
+      url: certUrl
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (e) {
+        // User cancelled share
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(certUrl);
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2500);
+      } catch (e) {
+        console.error("Clipboard copy failed", e);
+      }
+    }
+  };
+
   const toggleAccordion = (id: number) => {
     if (openAccordionIds.includes(id)) {
       setOpenAccordionIds(openAccordionIds.filter(aId => aId !== id));
@@ -518,9 +551,22 @@ export default function MyCourseDetailPage() {
                 </p>
                 <button
                   onClick={handleGetCertificate}
-                  className="px-6 py-3 bg-[#5851EF] text-white text-xs font-bold rounded-xl hover:bg-[#4841CF] transition-colors shadow-sm"
+                  className="w-full max-w-xs px-6 py-3 bg-[#5851EF] text-white text-xs font-bold rounded-xl hover:bg-[#4841CF] transition-colors shadow-sm"
                 >
                   Get Certificate
+                </button>
+                <button
+                  onClick={handleShareCertificate}
+                  className="w-full max-w-xs px-6 py-3 bg-white text-[#5851EF] border border-[#5851EF] text-xs font-bold rounded-xl hover:bg-gray-50 transition-colors shadow-sm flex items-center justify-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="18" cy="5" r="3"></circle>
+                    <circle cx="6" cy="12" r="3"></circle>
+                    <circle cx="18" cy="19" r="3"></circle>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                  </svg>
+                  Share Certificate
                 </button>
               </div>
             ) : (
