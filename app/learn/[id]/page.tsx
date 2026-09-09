@@ -647,7 +647,9 @@ function CoursePlayerPageContent() {
                 <button
                   onClick={async () => {
                     const openUrl = (url: string) => {
-                      if (url) window.location.href = url;
+                      if (!url) return;
+                      const finalUrl = url.includes("auto_download") ? url : `${url}${url.includes("?") ? "&" : "?"}auto_download=1`;
+                      window.location.href = finalUrl;
                     };
                     if (certificateInfo?.download_url) {
                       openUrl(certificateInfo.download_url);

@@ -124,7 +124,8 @@ export default function MyCourseDetailPage() {
 
   const openCertificateUrl = (url: string) => {
     if (!url) return;
-    window.location.href = url;
+    const finalUrl = url.includes("auto_download") ? url : `${url}${url.includes("?") ? "&" : "?"}auto_download=1`;
+    window.location.href = finalUrl;
   };
 
   const handleGetCertificate = async () => {
