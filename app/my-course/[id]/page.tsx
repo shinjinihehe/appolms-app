@@ -128,18 +128,11 @@ export default function MyCourseDetailPage() {
     if (!url) return;
     const finalUrl = url.includes("auto_download") ? url : `${url}${url.includes("?") ? "&" : "?"}auto_download=1`;
 
-    // Download file directly in background iframe so user stays inside the app
-    let iframe = document.getElementById("hidden-cert-iframe") as HTMLIFrameElement;
-    if (!iframe) {
-      iframe = document.createElement("iframe");
-      iframe.id = "hidden-cert-iframe";
-      iframe.style.display = "none";
-      document.body.appendChild(iframe);
-    }
-    iframe.src = finalUrl;
-
     setDownloadToast(true);
     setTimeout(() => setDownloadToast(false), 4000);
+
+    // Open certificate page in a new tab to allow html2canvas rendering & direct PNG download
+    window.open(finalUrl, "_blank");
   };
 
   const handleGetCertificate = async () => {

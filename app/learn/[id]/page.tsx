@@ -649,14 +649,7 @@ function CoursePlayerPageContent() {
                     const openUrl = (url: string) => {
                       if (!url) return;
                       const finalUrl = url.includes("auto_download") ? url : `${url}${url.includes("?") ? "&" : "?"}auto_download=1`;
-                      let iframe = document.getElementById("hidden-cert-iframe") as HTMLIFrameElement;
-                      if (!iframe) {
-                        iframe = document.createElement("iframe");
-                        iframe.id = "hidden-cert-iframe";
-                        iframe.style.display = "none";
-                        document.body.appendChild(iframe);
-                      }
-                      iframe.src = finalUrl;
+                      window.open(finalUrl, "_blank");
                     };
                     if (certificateInfo?.download_url) {
                       openUrl(certificateInfo.download_url);
