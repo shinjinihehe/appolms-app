@@ -13,7 +13,7 @@ export default function MyCourseDetailPage() {
 
   const { myCourses, fetchCourseSections, fetchLiveClass, toggleLessonCompleted } = useMyCourses();
   const { baseUrl } = useApp();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   
   const [activeTab, setActiveTab] = useState<"lessons" | "summary" | "liveClass" | "certificate" | "noticeBoard">("lessons");
   const [openAccordionIds, setOpenAccordionIds] = useState<number[]>([]);
@@ -70,14 +70,18 @@ export default function MyCourseDetailPage() {
   }, [courseId, fetchCourseSections, fetchLiveClass]);
 
   useEffect(() => {
-    if (!baseUrl || !token || !courseId) return;
+    if (!baseUrl || !courseId) return;
 
     // Fetch certificate status on load
     const fetchCertificate = async () => {
       setIsLoadingCertificate(true);
       try {
-        const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}`, {
-          headers: { Authorization: `Bearer ${token}` }
+        const userIdParam = user?.id ? `&user_id=${user.id}` : "";
+        const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}${userIdParam}`, {
+          headers: {
+            "Accept": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          }
         });
         const contentType = res.headers.get("content-type");
         if (res.ok && contentType && contentType.includes("application/json")) {
@@ -91,7 +95,7 @@ export default function MyCourseDetailPage() {
       }
     };
     fetchCertificate();
-  }, [baseUrl, token, courseId]);
+  }, [baseUrl, token, user?.id, courseId]);
 
   useEffect(() => {
     if (!baseUrl || !token || !courseId) return;
@@ -132,22 +136,39 @@ export default function MyCourseDetailPage() {
       openCertificateUrl(`${baseUrl}/certificate/${certificateInfo.identifier}`);
       return;
     }
-    if (!baseUrl || !courseId) return;
-    try {
-      const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
-      const contentType = res.headers.get("content-type");
-      if (res.ok && contentType && contentType.includes("application/json")) {
-        const data = await res.json();
-        setCertificateInfo(data);
-        const targetUrl = data.download_url || (data.identifier ? `${baseUrl}/certificate/${data.identifier}` : null);
-        if (targetUrl) {
-          openCertificateUrl(targetUrl);
+
+    let targetUrl: string | null = null;
+
+    if (baseUrl && courseId) {
+      try {
+        const userIdParam = user?.id ? `&user_id=${user.id}` : "";
+        const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}${userIdParam}`, {
+          headers: {
+            "Accept": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          }
+        });
+        const contentType = res.headers.get("content-type");
+        if (res.ok && contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          setCertificateInfo(data);
+          if (data.download_url) {
+            targetUrl = data.download_url;
+          } else if (data.identifier) {
+            targetUrl = `${baseUrl}/certificate/${data.identifier}`;
+          }
         }
+      } catch (e) {
+        console.error("Failed to fetch certificate status", e);
       }
-    } catch (e) {
-      console.error("Failed to fetch certificate status", e);
+    }
+
+    if (!targetUrl && baseUrl && courseId) {
+      targetUrl = `${baseUrl}/certificate/${courseId}`;
+    }
+
+    if (targetUrl) {
+      openCertificateUrl(targetUrl);
     }
   };
 

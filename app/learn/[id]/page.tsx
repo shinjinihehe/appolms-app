@@ -16,7 +16,7 @@ function CoursePlayerPageContent() {
   const lessonIdFromUrl = searchParams.get("lesson_id");
 
   const { myCourses, fetchCourseSections } = useMyCourses();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { baseUrl } = useApp();
   
   const [sections, setSections] = useState<any[]>([]);
@@ -657,22 +657,38 @@ function CoursePlayerPageContent() {
                       openUrl(`${baseUrl}/certificate/${certificateInfo.identifier}`);
                       return;
                     }
-                    if (!baseUrl || !courseId) return;
-                    try {
-                      const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}`, {
-                        headers: token ? { Authorization: `Bearer ${token}` } : {}
-                      });
-                      const contentType = res.headers.get("content-type");
-                      if (res.ok && contentType && contentType.includes("application/json")) {
-                        const data = await res.json();
-                        setCertificateInfo(data);
-                        const targetUrl = data.download_url || (data.identifier ? `${baseUrl}/certificate/${data.identifier}` : null);
-                        if (targetUrl) {
-                          openUrl(targetUrl);
+                    
+                    let targetUrl: string | null = null;
+                    if (baseUrl && courseId) {
+                      try {
+                        const userIdParam = user?.id ? `&user_id=${user.id}` : "";
+                        const res = await fetch(`${baseUrl}/api/certificate_status?course_id=${courseId}${userIdParam}`, {
+                          headers: {
+                            "Accept": "application/json",
+                            ...(token ? { Authorization: `Bearer ${token}` } : {})
+                          }
+                        });
+                        const contentType = res.headers.get("content-type");
+                        if (res.ok && contentType && contentType.includes("application/json")) {
+                          const data = await res.json();
+                          setCertificateInfo(data);
+                          if (data.download_url) {
+                            targetUrl = data.download_url;
+                          } else if (data.identifier) {
+                            targetUrl = `${baseUrl}/certificate/${data.identifier}`;
+                          }
                         }
+                      } catch (e) {
+                        console.error("Failed to fetch certificate status", e);
                       }
-                    } catch (e) {
-                      console.error("Failed to fetch certificate status", e);
+                    }
+
+                    if (!targetUrl && baseUrl && courseId) {
+                      targetUrl = `${baseUrl}/certificate/${courseId}`;
+                    }
+
+                    if (targetUrl) {
+                      openUrl(targetUrl);
                     }
                   }}
                   className="px-6 py-3 bg-[#5851EF] text-white text-xs font-bold rounded-xl hover:bg-[#4841CF] transition-colors shadow-sm"
